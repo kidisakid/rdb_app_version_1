@@ -189,7 +189,9 @@ def main():
             ["All columns", "Select columns"],
             key="dup_choice",
         )
-        if dup_choice == "Select columns":
+        if dup_choice == "All columns":
+            dup_columns = col_names  # pass full list so CLI prompt is never used
+        else:
             dup_columns = st.sidebar.multiselect("Columns", col_names, key="dup_cols")
 
     if "Translate columns" in selected_steps:
@@ -209,6 +211,10 @@ def main():
 
     if run_clicked and not selected_steps:
         st.warning("Select at least one process step.")
+        return
+
+    if run_clicked and selected_steps and "Remove duplicates" in selected_steps and dup_columns is not None and len(dup_columns) == 0:
+        st.warning("Please select at least one column to check for duplicates.")
         return
 
     if run_clicked and selected_steps:

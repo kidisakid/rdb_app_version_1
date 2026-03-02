@@ -78,8 +78,13 @@ def remove_duplicates(
         if invalid_columns:
             raise ValueError(f"Invalid columns: {invalid_columns}")
         
-        df_clean = df_work.drop_duplicates(subset=columns_to_check)
-        print(f"\nChecking duplicates in columns: {columns_to_check}")
+        if not columns_to_check:
+            # empty list = check all columns (e.g. from UI "All columns")
+            df_clean = df_work.drop_duplicates()
+            print(f"\nChecking duplicates in all columns")
+        else:
+            df_clean = df_work.drop_duplicates(subset=columns_to_check)
+            print(f"\nChecking duplicates in columns: {columns_to_check}")
     
     print(f"Original rows: {len(df_work)}")
     print(f"After removing duplicates: {len(df_clean)}")
