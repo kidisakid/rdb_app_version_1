@@ -48,7 +48,7 @@ st.markdown(
         color: #64748b;
         margin-bottom: 1.5rem;
     }
-    /* Section cards */
+    /* Section labels */
     .section-title {
         font-size: 0.85rem;
         font-weight: 600;
@@ -57,31 +57,132 @@ st.markdown(
         letter-spacing: 0.05em;
         margin-bottom: 0.5rem;
     }
-    /* Metrics / status */
-    .status-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-        color: #475569;
+
+    [data-testid="stMarkdown"]:has(.section-title) {
+        margin-top: 0.5rem;
     }
-    /* Hide Streamlit branding for cleaner look; keep header so top-left << sidebar toggle stays visible */
+
+    /* ── File uploader ────────────────────────────── */
+    [data-testid="stFileUploader"] section {
+        padding: 3rem 2rem !important;
+        border-radius: 10px !important;
+        border: 1.5px dashed #cbd5e1 !important;
+        background: #f8fafc !important;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stFileUploader"] section {
+            background: #1e2130 !important;
+            border-color: #2d3248 !important;
+        }
+    }
+    /* ────────────────────────────────────────────── */
+
+    /* ── Metric cards ─────────────────────────────── */
+    .status-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1.1rem 1.25rem 1rem;
+        position: relative;
+        overflow: hidden;
+        transition: box-shadow .2s, border-color .2s;
+    }
+    .status-box:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 16px rgba(26, 26, 46, .07);
+    }
+    .status-box::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: 10px 10px 0 0;
+    }
+    .status-box.rows::before { background: #1a1a2e; }
+    .status-box.cols::before { background: #334155; }
+    .status-box.size::before { background: #64748b; }
+
+    .status-icon {
+        font-size: .72rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-weight: 600;
+        margin-bottom: .35rem;
+    }
+    .status-val {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #1a1a2e;
+        letter-spacing: -.02em;
+        margin-bottom: .3rem;
+    }
+    .status-lbl {
+        font-size: .78rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* ── Dark mode overrides ──────────────────────── */
+    @media (prefers-color-scheme: dark) {
+        .status-box {
+            background: #1e2130;
+            border-color: #2d3248;
+        }
+        .status-box:hover {
+            border-color: #3d4460;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+        }
+        .status-box.rows::before { background: #a5b4fc; }
+        .status-box.cols::before { background: #7dd3fc; }
+        .status-box.size::before { background: #94a3b8; }
+        .status-val  { color: #f1f5f9; }
+        .status-lbl  { color: #94a3b8; }
+        .status-icon { color: #475569; }
+    }
+    /* ────────────────────────────────────────────── */
+
+    /* Hide Streamlit branding; keep sidebar toggle visible */
     #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
+    footer     { visibility: hidden; }
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-def load_uploaded_file(uploaded_file) -> pd.DataFrame:
-    """Load CSV or Excel from uploaded file."""
+
+def detect_encoding(uploaded_file) -> str:
+    """Detect encoding by trying each entry in config.CSV_ENCODINGS in order."""
+    raw = uploaded_file.read(50_000)
+    uploaded_file.seek(0)
+    for enc in config.CSV_ENCODINGS:
+        try:
+            raw.decode(enc)
+            return enc
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return config.CSV_ENCODINGS[0]
+
+
+def load_uploaded_file(uploaded_file) -> tuple[pd.DataFrame, str]:
+    """Load CSV or Excel. Returns (dataframe, encoding_used)."""
     suffix = Path(uploaded_file.name).suffix.lower()
-    if suffix == ".csv":
-        return pd.read_csv(uploaded_file, encoding="utf-8", on_bad_lines="skip")
     if suffix in (".xlsx", ".xls"):
-        return pd.read_excel(uploaded_file)
+        return pd.read_excel(uploaded_file), "n/a"
+    if suffix == ".csv":
+        encoding = detect_encoding(uploaded_file)
+        return (
+            pd.read_csv(uploaded_file, encoding=encoding, on_bad_lines="skip"),
+            encoding,
+        )
     raise ValueError("Unsupported format. Use CSV or Excel (.xlsx, .xls).")
+
 
 def run_pipeline(
     temp_path: str,
@@ -117,7 +218,7 @@ def run_pipeline(
                 )
             else:
                 continue
-            # After first step, subsequent steps read from file; write current df so next step sees it
+            # After first step, write df so next step reads updated data
             if i < n - 1 and df is not None:
                 df.to_csv(temp_path, index=False)
         except Exception as e:
@@ -126,6 +227,7 @@ def run_pipeline(
             return None
     progress_placeholder.progress(1.0, text="Done")
     return df
+
 
 def main():
     st.markdown('<p class="main-header">Data Pipeline</p>', unsafe_allow_html=True)
@@ -165,15 +267,39 @@ def main():
         return
 
     try:
-        input_df = load_uploaded_file(uploaded_file)
+        input_df, _ = load_uploaded_file(uploaded_file)
     except Exception as e:
         st.error(f"Failed to load file: {e}")
         return
 
-    st.markdown(
-        f'<div class="status-box">Rows: {len(input_df):,} | Columns: {len(input_df.columns):,}</div>',
-        unsafe_allow_html=True,
-    )
+    # ── Metric cards ──────────────────────────────────────────────────────────
+    row_count  = len(input_df)
+    col_count  = len(input_df.columns)
+
+    c1, c2 = st.columns(2, gap="medium")
+    with c1:
+        st.markdown(
+            f"""<div class="status-box rows">
+                  <div class="status-icon">Rows</div>
+                  <div class="status-val">{row_count:,}</div>
+                  <div class="status-lbl">Total records in file</div>
+                </div>""",
+            unsafe_allow_html=True,
+        )
+    with c2:
+        st.markdown(
+            f"""<div class="status-box cols">
+                  <div class="status-icon">Columns</div>
+                  <div class="status-val">{col_count}</div>
+                  <div class="status-lbl">Fields detected</div>
+                </div>""",
+            unsafe_allow_html=True,
+        )
+
+    st.divider()
+    st.dataframe(input_df.head(5), use_container_width=True)
+
+    # ─────────────────────────────────────────────────────────────────────────
 
     # --- Options for selected steps ---
     col_names = list(input_df.columns)
@@ -265,6 +391,7 @@ def main():
                 file_name=out_name,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
+
 
 if __name__ == "__main__":
     main()
