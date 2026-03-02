@@ -121,7 +121,6 @@ def run_pipeline(
                     source_language=source_lang,
                     columns_to_process=translate_columns_list,
                     file_path=temp_path,
-                    quiet=True,
                     progress_callback=_translate_progress,
                 )
             else:

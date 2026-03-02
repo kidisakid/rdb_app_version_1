@@ -17,7 +17,6 @@ def translate_columns(
     source_language: str = 'auto',
     columns_to_process: Optional[List[str]] = None,
     file_path: Optional[str] = None,
-    quiet: bool = False,
     progress_callback: Optional[Callable[[int, int, str], None]] = None,
 ) -> pd.DataFrame:
     """
@@ -216,8 +215,8 @@ def translate_columns(
             # Submit all group translation tasks
             future_to_group = {executor.submit(translate_group, group): group for group in groups}
             
-            # Process completed translations with progress bar (disabled when quiet=True, e.g. Streamlit)
-            with tqdm(total=num_groups, desc=f"Translating {col_name}", unit="group", disable=quiet) as pbar:
+            # Process completed translations with progress bar (disabled when progress_callback is set, e.g. Streamlit)
+            with tqdm(total=num_groups, desc=f"Translating {col_name}", unit="group", disable=progress_callback is not None) as pbar:
                 for future in as_completed(future_to_group):
                     try:
                         group_translations, status = future.result()
