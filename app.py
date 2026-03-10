@@ -23,7 +23,7 @@ from src.cleaning.normalize_headers import normalize_headers
 from src.cleaning.removing_duplicates import remove_duplicates
 from src.transformation.add_dates_metadata import add_dates_metadata
 from src.transformation.translate_columns import translate_columns
-from config import STEP_REGISTRY, ALL_LABELS, GROUP_CONFIG, GROUP_DARK_BG, GROUP_DARK_COLOR
+from config import STEP_REGISTRY, GROUP_CONFIG
 
 
 # Page config
