@@ -27,6 +27,7 @@ from src.cleaning.removing_duplicates import remove_duplicates
 from src.transformation.add_dates_metadata import add_dates_metadata
 from src.transformation.translate_columns import translate_columns
 from src.clustering.topic_clustering import topic_cluster, TopicClusterer, clean_text
+from src.merge.merge_csv import merge_csv
 from config import STEP_REGISTRY, GROUP_CONFIG
 
 
@@ -121,6 +122,18 @@ def render_sidebar(col_names: list) -> tuple:
         target_lang = st.sidebar.text_input("Target language code", value="en", key="target_lang")
         source_lang = st.sidebar.text_input("Source language code", value="auto", key="source_lang")
 
+    # Merge CSV options
+    merge_files = None
+    if "Merge CSV files" in selected_labels:
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("**Merge CSV files — options**")
+        merge_files = st.sidebar.file_uploader(
+            "Upload CSV files to merge",
+            type=["csv"],
+            accept_multiple_files=True,
+            key="merge_csv_files",
+        )
+
     # Topic clustering options
     cluster_params = None
     if "Topic clustering" in selected_labels:
@@ -142,7 +155,7 @@ def render_sidebar(col_names: list) -> tuple:
             "clean_text_option": cluster_clean,
         }
 
-    return selected_labels, dup_columns, translate_cols_list, target_lang, source_lang, cluster_params
+    return selected_labels, dup_columns, translate_cols_list, target_lang, source_lang, cluster_params, merge_files
 
 
 # Pipeline strip builder
@@ -205,6 +218,7 @@ def run_pipeline(
     source_lang: str,
     progress_placeholder,
     cluster_params: dict | None = None,
+    merge_files: list | None = None,
 ) -> pd.DataFrame | None:
     df = None
     n = len(steps)
@@ -242,6 +256,12 @@ def run_pipeline(
                         columns_to_process=translate_columns_list,
                         file_path=temp_path,
                     )
+
+            elif step == "Merge CSV files":
+                df = merge_csv(
+                    file_path=temp_path,
+                    uploaded_files=merge_files,
+                )
 
             elif step == "Topic clustering":
                 params = cluster_params or {}
@@ -286,7 +306,7 @@ def main():
         <div class="hero-actions">
             <span class="hero-badge"><span class="hero-badge-dot"></span>Ready</span>
             <span class="hero-badge">📁 CSV &amp; Excel</span>
-            <span class="hero-badge">⚡ 5 operations</span>
+            <span class="hero-badge">⚡ 6 operations</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -315,7 +335,7 @@ def main():
         return
 
     col_names = list(input_df.columns)
-    selected_steps, dup_columns, translate_cols_list, target_lang, source_lang, cluster_params = render_sidebar(col_names)
+    selected_steps, dup_columns, translate_cols_list, target_lang, source_lang, cluster_params, merge_files = render_sidebar(col_names)
 
     # ── Metric cards ─────────────────────────────────────────────────────
     st.markdown('<div class="section-divider"><span class="section-divider-label">Dataset Overview</span><span class="section-divider-line"></span></div>', unsafe_allow_html=True)
@@ -357,6 +377,9 @@ def main():
     if run_clicked and "Translate columns" in selected_steps and not translate_cols_list:
         st.warning("Please select at least one column to translate.")
         return
+    if run_clicked and "Merge CSV files" in selected_steps and not merge_files:
+        st.warning("Please upload CSV files to merge in the sidebar.")
+        return
 
     if run_clicked and selected_steps:
         progress_placeholder = st.empty()
@@ -369,6 +392,7 @@ def main():
                 translate_cols_list if "Translate columns" in selected_steps else None,
                 target_lang, source_lang, progress_placeholder,
                 cluster_params=cluster_params if "Topic clustering" in selected_steps else None,
+                merge_files=merge_files if "Merge CSV files" in selected_steps else None,
             )
         finally:
             try:
