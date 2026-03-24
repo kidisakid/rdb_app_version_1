@@ -115,85 +115,34 @@ STYLES = """
     background: #e2e8f0;
 }
 
-/* ── Sidebar header ─────────────────────────────── */
-.sidebar-header {
-    font-size: 0.7rem; font-weight: 700; color: #94a3b8;
-    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;
-}
-
-/* ── Compact sidebar spacing ────────────────────── */
+/* ── Sidebar spacing ───────────────────────────── */
 section[data-testid="stSidebar"] .stMarkdown { margin-bottom: 0 !important; }
 section[data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
-section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div { gap: 2px !important; }
 
-/* ── Expander styling ───────────────────────────── */
+/* ── Sidebar expanders ─────────────────────────── */
 section[data-testid="stSidebar"] details {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
-    margin: 0 !important;
+    padding: 0 !important;
 }
 section[data-testid="stSidebar"] details summary {
-    font-size: 0.8rem !important;
+    font-size: 0.78rem !important;
     font-weight: 700 !important;
     color: #1e293b !important;
-    padding: 6px 8px 6px 4px !important;
-    border-radius: 7px !important;
-    list-style: none !important;
-    position: relative !important;
-}
-section[data-testid="stSidebar"] details summary::-webkit-details-marker {
-    display: none !important;
-}
-
-/* Hide all chevron icons from expander */
-section[data-testid="stSidebar"] details summary svg,
-section[data-testid="stSidebar"] details summary [data-testid="stExpanderToggleIcon"],
-section[data-testid="stSidebar"] details summary > div:first-child {
-    display: none !important;
+    padding: 0.5rem 0 !important;
+    border-radius: 6px !important;
 }
 section[data-testid="stSidebar"] details summary:hover {
-    background: rgba(0,0,0,0.04) !important;
-}
-@media (prefers-color-scheme: dark) {
-    section[data-testid="stSidebar"] details summary::after {
-        color: #64748b !important;
-    }
+    color: #6366f1 !important;
 }
 
-/* ── Checkboxes inside expander ─────────────────── */
-section[data-testid="stSidebar"] details .stCheckbox label {
-    font-size: 0.78rem !important;
+/* ── Sidebar checkboxes ────────────────────────── */
+section[data-testid="stSidebar"] .stCheckbox label {
+    font-size: 0.82rem !important;
     color: #475569 !important;
-    padding: 3px 0 !important;
 }
-section[data-testid="stSidebar"] details .stCheckbox label:hover {
-    color: #1e293b !important;
-}
-
-/* ── Select-all button ──────────────────────────── */
-section[data-testid="stSidebar"] details .stButton button {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    height: auto !important;
-    min-height: unset !important;
-    font-size: 0.67rem !important;
-    font-weight: 600 !important;
-    color: #94a3b8 !important;
-    text-decoration: underline !important;
-    text-underline-offset: 2px !important;
-    width: auto !important;
-    justify-content: flex-start !important;
-    margin-bottom: 4px !important;
-}
-section[data-testid="stSidebar"] details .stButton button:hover {
-    color: #475569 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-}
+section[data-testid="stSidebar"] .stCheckbox label:hover { color: #1e293b !important; }
 
 
 /* ── Pipeline strip ─────────────────────────────── */
@@ -306,11 +255,9 @@ section[data-testid="stSidebar"] details .stButton button:hover {
 
     /* Sidebar */
     section[data-testid="stSidebar"] details summary { color: #e2e8f0 !important; }
-    section[data-testid="stSidebar"] details summary:hover { background: rgba(255,255,255,0.05) !important; }
-    section[data-testid="stSidebar"] details .stCheckbox label { color: #94a3b8 !important; }
-    section[data-testid="stSidebar"] details .stCheckbox label:hover { color: #e2e8f0 !important; }
-    section[data-testid="stSidebar"] details .stButton button { color: #475569 !important; }
-    section[data-testid="stSidebar"] details .stButton button:hover { color: #94a3b8 !important; }
+    section[data-testid="stSidebar"] details summary:hover { color: #818cf8 !important; }
+    section[data-testid="stSidebar"] .stCheckbox label { color: #94a3b8 !important; }
+    section[data-testid="stSidebar"] .stCheckbox label:hover { color: #e2e8f0 !important; }
 
 
 }

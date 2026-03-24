@@ -43,7 +43,6 @@ from styles import STYLES
 st.markdown(STYLES, unsafe_allow_html=True)
 
 
-# Helpers (use GROUP_CONFIG from config.py)
 def get_group_color(group: str) -> str:
     return GROUP_CONFIG.get(group, {}).get("color", "#94a3b8")
 
@@ -59,8 +58,22 @@ def render_sidebar(col_names: list, file_count: int = 1) -> tuple:
 
     groups: dict[str, list] = {}
     for step in STEP_REGISTRY:
-        if search.lower() in step["label"].lower():
-            groups.setdefault(step["group"], []).append(step)
+        groups.setdefault(step["group"], []).append(step)
+
+    # ── Select all / Deselect all ───────────────────────────────────
+    all_checked = all(st.session_state.get(s["id"], False) for s in STEP_REGISTRY)
+
+    def _toggle_all():
+        new_val = not all(st.session_state.get(s["id"], False) for s in STEP_REGISTRY)
+        for s in STEP_REGISTRY:
+            st.session_state[s["id"]] = new_val
+
+    st.sidebar.button(
+        "Deselect all" if all_checked else "Select all",
+        key="select_all_btn",
+        on_click=_toggle_all,
+        use_container_width=True,
+    )
 
     selected_labels = []
 
@@ -112,23 +125,22 @@ def render_sidebar(col_names: list, file_count: int = 1) -> tuple:
                     if (checked or run_all) and not step_blocked:
                         selected_labels.append(step["label"])
 
-    # Per-step options
+    # ── Per-step options (only appear when relevant) ────────────────
     dup_columns = None
     translate_cols_list = None
     target_lang = "en"
     source_lang = "auto"
 
     if "Remove duplicates" in selected_labels:
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("**Remove duplicates — options**")
+        st.sidebar.caption("Requires: Remove duplicates")
         dup_columns = st.sidebar.multiselect("Columns to check", col_names, key="dup_cols")
 
     if "Translate columns" in selected_labels:
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("**Translate columns — options**")
+        st.sidebar.caption("Requires: Translate columns")
         translate_cols_list = st.sidebar.multiselect("Columns to translate", col_names, key="trans_cols")
-        target_lang = st.sidebar.text_input("Target language code", value="en", key="target_lang")
-        source_lang = st.sidebar.text_input("Source language code", value="auto", key="source_lang")
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        target_lang = col1.text_input("Target", value="en", key="target_lang")
+        source_lang = col2.text_input("Source", value="auto", key="source_lang")
 
     # Topic clustering options
     cluster_params = None
