@@ -273,10 +273,23 @@ Review and apply these improvements when the project grows:
 
 ---
 
+### Phase 8: Update Documentation
+
+After the code is integrated, update all project documentation using the **`documentation-update` skill** (`.claude/skills/documentation-update.md`). This includes:
+
+1. Create a markdown doc in `docs/modules/<module_name>.md`
+2. Add a tab to `docs/Project_Documentation.html` with workflow diagram
+3. Update the HTML Overview, Project Structure, I-P-O, Full Workflow SVG, and Quick Start tabs
+
+Refer to the `documentation-update` skill for exact templates, conventions, color schemes, and checklists.
+
+---
+
 ## Checklist Summary
 
 Before marking a module integration as complete, verify:
 
+**Code Integration:**
 - [ ] Module `.py` file exists in correct `src/<group>/` subfolder
 - [ ] Module follows conventions: `file_path=None` param, returns DataFrame, uses `csv_handler`
 - [ ] Subfolder `__init__.py` updated with import
@@ -292,5 +305,12 @@ Before marking a module integration as complete, verify:
 - [ ] Pipeline runs with new step alone
 - [ ] Pipeline runs with new step + all other steps
 - [ ] Existing functionality unchanged
+
+**Documentation** (see `documentation-update` skill):
+- [ ] Markdown doc created in `docs/modules/`
+- [ ] HTML tab added to `Project_Documentation.html`
+- [ ] Overview, Structure, I-P-O, Workflow SVG, Quick Start tabs updated
+
+**Version Control:**
 - [ ] Feature branch created, commits are atomic and descriptive
 - [ ] PR created against `main`
