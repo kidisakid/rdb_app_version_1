@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDB Media Analytics Pipeline - Project Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+            background: #f7f6f3;
+            min-height: 100vh;
+            padding: 0;
+            color: #37352f;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            padding: 48px 96px 24px;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 4px;
+            font-weight: 700;
+            color: #37352f;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            color: rgba(55, 53, 47, 0.65);
+            font-weight: 400;
+        }
+
+        .header .version-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 8px;
+            background: rgba(55, 53, 47, 0.08);
+            border-radius: 3px;
+            font-size: 0.8em;
+            color: rgba(55, 53, 47, 0.65);
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+            padding: 0 96px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: rgba(55, 53, 47, 0.2);
+            border-radius: 2px;
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.84em;
+            font-weight: 500;
+            color: rgba(55, 53, 47, 0.65);
+            transition: all 0.15s ease;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: rgba(55, 53, 47, 0.03);
+            color: #37352f;
+        }
+
+        .tab-button.active {
+            color: #37352f;
+            border-bottom: 2px solid #37352f;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 48px 96px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2 {
+            color: #37352f;
+            margin-bottom: 16px;
+            font-size: 1.875em;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h3 {
+            color: #37352f;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #37352f;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.125em;
+            font-weight: 600;
+        }
+
+        p, li {
+            line-height: 1.7;
+            color: #37352f;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .goal-box {
+            background: #f7f6f3;
+            padding: 20px;
+            border-radius: 3px;
+            margin-bottom: 16px;
+            border-left: 3px solid #37352f;
+        }
+
+        .callout {
+            background: #f7f6f3;
+            padding: 16px 20px;
+            border-radius: 3px;
+            margin: 16px 0;
+            border-left: 3px solid #37352f;
+        }
+
+        .callout.tip {
+            border-left-color: #0f7b6c;
+        }
+
+        .callout.warning {
+            border-left-color: #d9730d;
+        }
+
+        .callout-label {
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .callout.tip .callout-label { color: #0f7b6c; }
+        .callout.warning .callout-label { color: #d9730d; }
+
+        pre {
+            background: #f7f6f3;
+            color: #37352f;
+            padding: 16px;
+            border-radius: 3px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+            font-size: 0.875em;
+            line-height: 1.5;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+        }
+
+        .process-section {
+            background: white;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+            border-radius: 3px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .module-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .badge-cleaning { background: #e8deee; color: #6940a5; }
+        .badge-transformation { background: #d3e5ef; color: #2e6b8a; }
+        .badge-utility { background: #dbeddb; color: #2e7d32; }
+        .badge-analysis { background: #d6eaf8; color: #0e6ba8; }
+        .badge-merge { background: #ede9fe; color: #7c3aed; }
+        .badge-placeholder { background: rgba(55,53,47,0.08); color: rgba(55,53,47,0.5); }
+
+        .ipo-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .ipo-card {
+            background: #f7f6f3;
+            padding: 20px;
+            border-radius: 3px;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+        }
+
+        .ipo-card h3 {
+            margin-top: 0;
+            color: #37352f;
+            font-size: 1.25em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+        }
+
+        th {
+            background: #f7f6f3;
+            color: #37352f;
+            font-weight: 600;
+            font-size: 0.875em;
+        }
+
+        tr:hover {
+            background: rgba(55, 53, 47, 0.03);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+            margin-top: 48px;
+        }
+
+        .nav-button {
+            padding: 8px 16px;
+            background: white;
+            color: #37352f;
+            border: 1px solid rgba(55, 53, 47, 0.16);
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.875em;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: rgba(55, 53, 47, 0.03);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        code {
+            background: rgba(135, 131, 120, 0.15);
+            color: #eb5757;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85em;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        .workflow-chart {
+            background: white;
+            padding: 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .module-card {
+            background: white;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+            border-radius: 3px;
+            padding: 20px;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .module-card:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .module-card h4 {
+            margin-top: 0;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: #37352f;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .step-item .step-content {
+            flex: 1;
+        }
+
+        .param-table {
+            font-size: 0.9em;
+        }
+
+        .param-table code {
+            font-size: 0.85em;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(55, 53, 47, 0.09);
+            margin: 32px 0;
+        }
+
+        .toc-link {
+            color: #37352f;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(55, 53, 47, 0.2);
+            transition: border-color 0.15s;
+        }
+
+        .toc-link:hover {
+            border-bottom-color: #37352f;
+        }
+
+        .example-box {
+            background: #f7f6f3;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+            border-radius: 3px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+
+        .example-box h4 {
+            margin-top: 0;
+            font-size: 0.95em;
+            color: rgba(55, 53, 47, 0.65);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 32px 24px 16px; }
+            .tabs { padding: 0 24px; }
+            .tab-content { padding: 32px 24px; }
+            .ipo-section { grid-template-columns: 1fr; }
+            .module-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RDB Media Analytics Pipeline</h1>
+            <p>Project Documentation, Workflow Diagrams & User Guide</p>
+            <span class="version-badge">v1.0 &mdash; Last updated: March 2026</span>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'overview')">Overview</button>
+            <button class="tab-button" onclick="openTab(event, 'structure')">Project Structure</button>
+            <button class="tab-button" onclick="openTab(event, 'ipo')">I-P-O Model</button>
+            <button class="tab-button" onclick="openTab(event, 'workflow-full')">Full Workflow</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-normalize')">Header Normalization</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-duplicates')">Duplicate Remover</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-dates')">Date Metadata</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-translate')">Translation</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-csvhandler')">CSV Handler</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-clustering')">Topic Clustering</button>
+            <button class="tab-button" onclick="openTab(event, 'mod-merge')">CSV Merge</button>
+            <button class="tab-button" onclick="openTab(event, 'quickstart')">Quick Start</button>
+            <button class="tab-button" onclick="openTab(event, 'adding-modules')">Adding Modules</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: OVERVIEW -->
+        <!-- ============================================================ -->
+        <div id="overview" class="tab-content active">
+            <h2>Project Overview</h2>
+
+            <div class="goal-box">
+                <h3>Primary Objective</h3>
+                <p><strong>A modular, Streamlit-based data processing pipeline designed for media analysts to clean, transform, enrich, and translate media coverage datasets with minimal technical expertise.</strong></p>
+            </div>
+
+            <h3>What This Application Does</h3>
+            <p>The RDB Media Analytics Pipeline allows you to upload raw media data (CSV or Excel files) and apply a configurable sequence of processing steps. Each step is an independent module that performs a specific transformation on your data. You can run all steps in sequence or pick only the ones you need.</p>
+
+            <h3>Available Modules</h3>
+            <div class="module-grid">
+                <div class="module-card">
+                    <span class="module-badge badge-cleaning">Cleaning</span>
+                    <h4>Header Normalization</h4>
+                    <p>Standardizes column names by trimming whitespace and converting to Title Case for consistency across datasets.</p>
+                </div>
+                <div class="module-card">
+                    <span class="module-badge badge-cleaning">Cleaning</span>
+                    <h4>Duplicate Remover</h4>
+                    <p>Removes duplicate rows based on all columns or specific columns you choose, ensuring each record is unique.</p>
+                </div>
+                <div class="module-card">
+                    <span class="module-badge badge-transformation">Transformation</span>
+                    <h4>Date Metadata Extraction</h4>
+                    <p>Auto-detects date columns and adds Year, Month, Day, and Quarter fields for time-based analysis and reporting.</p>
+                </div>
+                <div class="module-card">
+                    <span class="module-badge badge-transformation">Transformation</span>
+                    <h4>Column Translation</h4>
+                    <p>Translates text columns to a target language using Google Translate, with smart caching and similarity grouping for efficiency.</p>
+                </div>
+                <div class="module-card">
+                    <span class="module-badge badge-analysis">Analysis</span>
+                    <h4>Topic Clustering</h4>
+                    <p>Automatically groups text data into thematic clusters using TF-IDF and K-Means, with rich visualizations for topic discovery.</p>
+                </div>
+                <div class="module-card">
+                    <span class="module-badge badge-merge">Merge</span>
+                    <h4>CSV Merge</h4>
+                    <p>Combines multiple CSV files into one dataset, tagging each row with a Country Code extracted from the source filename.</p>
+                </div>
+            </div>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Web-based Interface</strong> &mdash; No command-line knowledge required. Upload, process, and download through your browser.</li>
+                <li><strong>Modular Architecture</strong> &mdash; Each processing step is independent. New modules can be added without modifying existing code.</li>
+                <li><strong>Multi-format Support</strong> &mdash; Handles CSV files with various encodings (UTF-8, Latin-1, CP-1252) and delimiters (comma, tab, semicolon), plus Excel files.</li>
+                <li><strong>Real-time Progress</strong> &mdash; A progress bar tracks each step of the pipeline as it runs.</li>
+                <li><strong>Preview & Download</strong> &mdash; Preview the first 100 rows of your processed data before downloading as CSV or Excel.</li>
+            </ul>
+
+            <h3>Technology Stack</h3>
+            <table>
+                <tr><th>Component</th><th>Technology</th><th>Purpose</th></tr>
+                <tr><td>User Interface</td><td>Streamlit</td><td>Web-based interactive dashboard</td></tr>
+                <tr><td>Data Processing</td><td>pandas</td><td>DataFrame manipulation and I/O</td></tr>
+                <tr><td>Translation</td><td>deep-translator</td><td>Google Translate API wrapper</td></tr>
+                <tr><td>Language Detection</td><td>langdetect</td><td>Auto-detect source language</td></tr>
+                <tr><td>Text Similarity</td><td>scikit-learn</td><td>TF-IDF + cosine similarity for optimization</td></tr>
+                <tr><td>Excel Support</td><td>openpyxl</td><td>Read/write .xlsx files</td></tr>
+            </table>
+
+            <div class="navigation">
+                <button class="nav-button" disabled>Previous</button>
+                <button class="nav-button" onclick="nextTab()">Next: Project Structure</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: PROJECT STRUCTURE -->
+        <!-- ============================================================ -->
+        <div id="structure" class="tab-content">
+            <h2>Project Structure</h2>
+
+            <p>The project follows a clean, modular layout. Each category of processing (cleaning, transformation, utilities) has its own sub-package under <code>src/</code>.</p>
+
+            <pre>
+sevengen-internshipweek4.2/
+│
+├── main.py                              # Entry point (launches Streamlit)
+├── app.py                               # Streamlit UI & pipeline orchestration
+├── config.py                            # Configuration (paths, encodings, delimiters)
+├── requirements.txt                     # Python dependencies
+├── readme.md                            # Project README
+│
+├── src/                                 # All processing modules
+│   ├── __init__.py                      # Package init with re-exports
+│   │
+│   ├── cleaning/                        # Data cleaning modules
+│   │   ├── __init__.py
+│   │   ├── normalize_headers.py         # Header normalization
+│   │   └── removing_duplicates.py       # Duplicate removal
+│   │
+│   ├── transformation/                  # Data transformation modules
+│   │   ├── __init__.py
+│   │   ├── add_dates_metadata.py        # Date metadata extraction
+│   │   └── translate_columns.py         # Column translation
+│   │
+│   ├── utils/                           # Shared utilities
+│   │   ├── __init__.py
+│   │   └── csv_handler.py               # CSV/Excel I/O handler
+│   │
+│   ├── clustering/                      # Text analysis modules
+│   │   ├── __init__.py
+│   │   ├── config.py                    # Clustering configuration defaults
+│   │   └── topic_clustering.py          # TF-IDF + K-Means topic clustering
+│   │
+│   └── merge/                           # Data merging modules
+│       ├── __init__.py
+│       └── merge_csv.py                 # Multi-file CSV merge by country
+│
+├── data/
+│   ├── raw/                             # Default location for input files
+│   └── output/                          # Default location for output files
+│
+└── docs/                                # Documentation (you are here)
+    ├── Project_Documentation.html       # This file
+    ├── modules/                          # Per-module markdown documentation
+    │   ├── normalize_headers.md
+    │   ├── removing_duplicates.md
+    │   ├── add_dates_metadata.md
+    │   ├── translate_columns.md
+    │   ├── csv_handler.md
+    │   ├── topic_clustering.md
+    │   └── merge_csv.md
+    └── workflows/                        # Workflow diagrams (if exported)
+            </pre>
+
+            <h3>Directory Descriptions</h3>
+
+            <div class="process-section">
+                <h4>src/cleaning/</h4>
+                <p>Modules that clean and standardize raw data without altering its meaning. These should generally be run first in the pipeline.</p>
+                <ul>
+                    <li><strong>normalize_headers.py</strong> &mdash; Trims whitespace and title-cases all column names</li>
+                    <li><strong>removing_duplicates.py</strong> &mdash; Removes duplicate rows (full or column-specific)</li>
+                </ul>
+            </div>
+
+            <div class="process-section">
+                <h4>src/transformation/</h4>
+                <p>Modules that enrich or transform the data by adding new information or converting existing content.</p>
+                <ul>
+                    <li><strong>add_dates_metadata.py</strong> &mdash; Extracts Year, Month, Day, Quarter from date columns</li>
+                    <li><strong>translate_columns.py</strong> &mdash; Translates text columns to a target language</li>
+                </ul>
+            </div>
+
+            <div class="process-section">
+                <h4>src/utils/</h4>
+                <p>Shared utility functions used by all modules. Not a pipeline step itself.</p>
+                <ul>
+                    <li><strong>csv_handler.py</strong> &mdash; Robust CSV/Excel reading and writing with encoding/delimiter auto-detection</li>
+                </ul>
+            </div>
+
+            <div class="process-section">
+                <h4>src/clustering/</h4>
+                <p>Text analysis modules that discover patterns and group content by theme.</p>
+                <ul>
+                    <li><strong>topic_clustering.py</strong> &mdash; TF-IDF vectorization + K-Means clustering with PCA visualization</li>
+                    <li><strong>config.py</strong> &mdash; Default parameters for clustering (n_clusters, TF-IDF settings, etc.)</li>
+                </ul>
+            </div>
+
+            <div class="process-section">
+                <h4>src/merge/</h4>
+                <p>Modules for combining multiple data files into a single dataset.</p>
+                <ul>
+                    <li><strong>merge_csv.py</strong> &mdash; Merges multiple CSV files with Country Code tagging from filenames</li>
+                </ul>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Overview</button>
+                <button class="nav-button" onclick="nextTab()">Next: I-P-O Model</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: I-P-O MODEL -->
+        <!-- ============================================================ -->
+        <div id="ipo" class="tab-content">
+            <h2>I-P-O Model (Input &ndash; Process &ndash; Output)</h2>
+
+            <h3>Application-Level I-P-O</h3>
+            <div class="ipo-section">
+                <div class="ipo-card">
+                    <h3>INPUT</h3>
+                    <h4>What you provide:</h4>
+                    <ul>
+                        <li>A CSV or Excel file containing media data</li>
+                        <li>Pipeline step selections (which modules to run)</li>
+                        <li>Optional parameters (columns for dedup, target language, etc.)</li>
+                    </ul>
+                    <h4>Requirements:</h4>
+                    <ul>
+                        <li>Python 3.x installed</li>
+                        <li>Dependencies from <code>requirements.txt</code></li>
+                        <li>Internet connection (for translation)</li>
+                    </ul>
+                </div>
+
+                <div class="ipo-card">
+                    <h3>PROCESS</h3>
+                    <h4>What happens:</h4>
+                    <ol>
+                        <li>File is uploaded via Streamlit</li>
+                        <li>CSV Handler reads the file (auto-detects encoding/delimiter)</li>
+                        <li>Selected pipeline steps execute in order</li>
+                        <li>Each step reads &rarr; transforms &rarr; writes back to temp file</li>
+                        <li>Progress bar updates after each step</li>
+                    </ol>
+                </div>
+
+                <div class="ipo-card">
+                    <h3>OUTPUT</h3>
+                    <h4>What you receive:</h4>
+                    <ul>
+                        <li>Preview table (first 100 rows) in the browser</li>
+                        <li>Downloadable CSV file</li>
+                        <li>Downloadable Excel (.xlsx) file</li>
+                        <li>Cleaned, enriched, and/or translated data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <h3>Per-Module I-P-O</h3>
+
+            <table>
+                <tr>
+                    <th>Module</th>
+                    <th>Input</th>
+                    <th>Process</th>
+                    <th>Output</th>
+                </tr>
+                <tr>
+                    <td><strong>Header Normalization</strong></td>
+                    <td>DataFrame with inconsistent headers</td>
+                    <td>Trim whitespace, convert to Title Case</td>
+                    <td>DataFrame with clean, standardized headers</td>
+                </tr>
+                <tr>
+                    <td><strong>Duplicate Remover</strong></td>
+                    <td>DataFrame + optional column list</td>
+                    <td>Identify and remove duplicate rows</td>
+                    <td>DataFrame with unique rows only</td>
+                </tr>
+                <tr>
+                    <td><strong>Date Metadata</strong></td>
+                    <td>DataFrame with a date column</td>
+                    <td>Detect date column, parse dates, extract components</td>
+                    <td>DataFrame + Year, Month, Day, Quarter columns</td>
+                </tr>
+                <tr>
+                    <td><strong>Translation</strong></td>
+                    <td>DataFrame + target language + column selection</td>
+                    <td>Detect language, group similar text, translate via API</td>
+                    <td>DataFrame + new T_ prefixed translated columns</td>
+                </tr>
+                <tr>
+                    <td><strong>Topic Clustering</strong></td>
+                    <td>DataFrame + text column + cluster count</td>
+                    <td>TF-IDF vectorization, K-Means clustering, PCA visualization</td>
+                    <td>DataFrame + Cluster_Topic column + visualizations</td>
+                </tr>
+                <tr>
+                    <td><strong>CSV Merge</strong></td>
+                    <td>Multiple uploaded CSV/Excel files</td>
+                    <td>Extract country code from filenames, concat all rows</td>
+                    <td>Single merged DataFrame + Country_Code column</td>
+                </tr>
+                <tr>
+                    <td><strong>CSV Handler</strong></td>
+                    <td>File path (CSV or Excel)</td>
+                    <td>Try encodings/delimiters, fallback to Excel</td>
+                    <td>pandas DataFrame</td>
+                </tr>
+            </table>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Project Structure</button>
+                <button class="nav-button" onclick="nextTab()">Next: Full Workflow</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: FULL WORKFLOW -->
+        <!-- ============================================================ -->
+        <div id="workflow-full" class="tab-content">
+            <h2>Full Application Workflow</h2>
+
+            <p>This diagram shows the complete pipeline from file upload to final download. Each processing step is optional and can be toggled independently.</p>
+
+            <div class="workflow-chart">
+                <svg width="100%" height="1300" style="max-width: 700px; margin: 0 auto; display: block;">
+                    <!-- START -->
+                    <rect x="220" y="10" width="260" height="48" rx="4" fill="#37352f"/>
+                    <text x="350" y="40" text-anchor="middle" fill="white" font-size="15" font-weight="600">START</text>
+
+                    <line x1="350" y1="58" x2="350" y2="83" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,88 347,81 353,81" fill="#37352f"/>
+
+                    <!-- Upload -->
+                    <rect x="220" y="90" width="260" height="48" rx="4" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="350" y="119" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Upload CSV / Excel File(s)</text>
+
+                    <line x1="350" y1="138" x2="350" y2="163" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,168 347,161 353,161" fill="#37352f"/>
+
+                    <!-- CSV Handler -->
+                    <rect x="220" y="170" width="260" height="48" rx="4" fill="#dbeddb" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="350" y="190" text-anchor="middle" fill="#2e7d32" font-size="11" font-weight="600">UTILITY</text>
+                    <text x="350" y="207" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">CSV Handler: Read File</text>
+
+                    <line x1="350" y1="218" x2="350" y2="243" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,248 347,241 353,241" fill="#37352f"/>
+
+                    <!-- Decision: Select Steps -->
+                    <polygon points="350,250 480,290 350,330 220,290" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="350" y="286" text-anchor="middle" fill="#37352f" font-size="13" font-weight="500">Select Pipeline</text>
+                    <text x="350" y="301" text-anchor="middle" fill="#37352f" font-size="13" font-weight="500">Steps</text>
+
+                    <line x1="350" y1="330" x2="350" y2="355" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,360 347,353 353,353" fill="#37352f"/>
+
+                    <!-- Step 1: Normalize -->
+                    <rect x="220" y="362" width="260" height="48" rx="4" fill="#f3eef7" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="350" y="382" text-anchor="middle" fill="#6940a5" font-size="11" font-weight="600">CLEANING &middot; STEP 1</text>
+                    <text x="350" y="399" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Normalize Headers</text>
+
+                    <line x1="350" y1="410" x2="350" y2="435" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,440 347,433 353,433" fill="#37352f"/>
+
+                    <!-- Step 2: Duplicates -->
+                    <rect x="220" y="442" width="260" height="48" rx="4" fill="#f3eef7" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="350" y="462" text-anchor="middle" fill="#6940a5" font-size="11" font-weight="600">CLEANING &middot; STEP 2</text>
+                    <text x="350" y="479" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Remove Duplicates</text>
+
+                    <line x1="350" y1="490" x2="350" y2="515" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,520 347,513 353,513" fill="#37352f"/>
+
+                    <!-- Step 3: Dates -->
+                    <rect x="220" y="522" width="260" height="48" rx="4" fill="#e6f0f6" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="350" y="542" text-anchor="middle" fill="#2e6b8a" font-size="11" font-weight="600">ENRICHMENT &middot; STEP 3</text>
+                    <text x="350" y="559" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Add Date Metadata</text>
+
+                    <line x1="350" y1="570" x2="350" y2="595" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,600 347,593 353,593" fill="#37352f"/>
+
+                    <!-- Step 4: Translate -->
+                    <rect x="220" y="602" width="260" height="48" rx="4" fill="#e6f0f6" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="350" y="622" text-anchor="middle" fill="#2e6b8a" font-size="11" font-weight="600">ENRICHMENT &middot; STEP 4</text>
+                    <text x="350" y="639" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Translate Columns</text>
+
+                    <line x1="350" y1="650" x2="350" y2="675" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,680 347,673 353,673" fill="#37352f"/>
+
+                    <!-- Step 5: Topic Clustering -->
+                    <rect x="220" y="682" width="260" height="48" rx="4" fill="#d6eaf8" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="350" y="702" text-anchor="middle" fill="#0e6ba8" font-size="11" font-weight="600">ANALYSIS &middot; STEP 5</text>
+                    <text x="350" y="719" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Topic Clustering</text>
+
+                    <line x1="350" y1="730" x2="350" y2="755" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,760 347,753 353,753" fill="#37352f"/>
+
+                    <!-- Step 6: Merge CSV -->
+                    <rect x="220" y="762" width="260" height="48" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="350" y="782" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="600">MERGE &middot; STEP 6 (2+ files)</text>
+                    <text x="350" y="799" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Merge CSV Files</text>
+
+                    <line x1="350" y1="810" x2="350" y2="835" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,840 347,833 353,833" fill="#37352f"/>
+
+                    <!-- Future Steps placeholder -->
+                    <rect x="220" y="842" width="260" height="48" rx="4" fill="white" stroke="rgba(55,53,47,0.2)" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <text x="350" y="871" text-anchor="middle" fill="rgba(55,53,47,0.4)" font-size="14" font-weight="500">Future Modules...</text>
+
+                    <line x1="350" y1="890" x2="350" y2="915" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,920 347,913 353,913" fill="#37352f"/>
+
+                    <!-- Write back -->
+                    <rect x="220" y="922" width="260" height="48" rx="4" fill="#dbeddb" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="350" y="942" text-anchor="middle" fill="#2e7d32" font-size="11" font-weight="600">UTILITY</text>
+                    <text x="350" y="959" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">CSV Handler: Write Result</text>
+
+                    <line x1="350" y1="970" x2="350" y2="995" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,1000 347,993 353,993" fill="#37352f"/>
+
+                    <!-- Preview -->
+                    <rect x="220" y="1002" width="260" height="48" rx="4" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="350" y="1031" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Preview Results (100 rows)</text>
+
+                    <line x1="350" y1="1050" x2="350" y2="1075" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,1080 347,1073 353,1073" fill="#37352f"/>
+
+                    <!-- Download -->
+                    <rect x="220" y="1082" width="260" height="48" rx="4" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="350" y="1111" text-anchor="middle" fill="#37352f" font-size="14" font-weight="500">Download CSV / Excel</text>
+
+                    <line x1="350" y1="1130" x2="350" y2="1155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="350,1160 347,1153 353,1153" fill="#37352f"/>
+
+                    <!-- END -->
+                    <rect x="220" y="1162" width="260" height="48" rx="4" fill="#37352f"/>
+                    <text x="350" y="1192" text-anchor="middle" fill="white" font-size="15" font-weight="600">DONE</text>
+
+                    <!-- Side labels: "Optional steps" bracket -->
+                    <line x1="195" y1="362" x2="195" y2="890" stroke="rgba(55,53,47,0.2)" stroke-width="1"/>
+                    <line x1="195" y1="362" x2="205" y2="362" stroke="rgba(55,53,47,0.2)" stroke-width="1"/>
+                    <line x1="195" y1="890" x2="205" y2="890" stroke="rgba(55,53,47,0.2)" stroke-width="1"/>
+                    <text x="190" y="630" text-anchor="middle" fill="rgba(55,53,47,0.4)" font-size="12" font-weight="500" transform="rotate(-90, 190, 630)">Optional &mdash; User selects which steps to run</text>
+                </svg>
+            </div>
+
+            <h3>Pipeline Execution Details</h3>
+            <div class="process-section">
+                <p>When you click <strong>"Run Pipeline"</strong>, the application executes the following sequence:</p>
+                <ol>
+                    <li>The uploaded file is saved to a temporary location.</li>
+                    <li>For each selected step (in order), the system:
+                        <ul>
+                            <li>Reads the current temp file using <code>csv_handler.read_csv()</code></li>
+                            <li>Applies the module's transformation function</li>
+                            <li>Writes the result back to the temp file using <code>csv_handler.write_csv()</code></li>
+                            <li>Updates the progress bar</li>
+                        </ul>
+                    </li>
+                    <li>After all steps complete, the final DataFrame is displayed as a preview table.</li>
+                    <li>Download buttons are generated for CSV and Excel formats.</li>
+                </ol>
+            </div>
+
+            <div class="callout tip">
+                <div class="callout-label">Tip</div>
+                <p>Steps that are not selected are simply skipped. The data flows directly from one active step to the next. You can run just one step if that's all you need.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: I-P-O Model</button>
+                <button class="nav-button" onclick="nextTab()">Next: Header Normalization</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - HEADER NORMALIZATION -->
+        <!-- ============================================================ -->
+        <div id="mod-normalize" class="tab-content">
+            <h2>Header Normalization</h2>
+            <span class="module-badge badge-cleaning">Cleaning Module</span>
+            <p><code>src/cleaning/normalize_headers.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Standardizes column names across your dataset by trimming excess whitespace and converting all headers to Title Case. This ensures consistency when working with data from multiple sources.</p>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>Column names have irregular spacing (e.g., <code>"  Article  Title  "</code>)</li>
+                <li>Headers use inconsistent casing across files</li>
+                <li>You are preparing data for merging with other datasets</li>
+            </ul>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="440" style="max-width: 520px; margin: 0 auto; display: block;">
+                    <rect x="130" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="260" y="38" text-anchor="middle" fill="white" font-size="14" font-weight="500">Input: Raw DataFrame</text>
+
+                    <line x1="260" y1="54" x2="260" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,84 257,77 263,77" fill="#37352f"/>
+
+                    <rect x="130" y="86" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="260" y="113" text-anchor="middle" fill="#37352f" font-size="14">Read file via CSV Handler</text>
+
+                    <line x1="260" y1="130" x2="260" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,160 257,153 263,153" fill="#37352f"/>
+
+                    <rect x="130" y="162" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="260" y="189" text-anchor="middle" fill="#37352f" font-size="14">Trim whitespace from headers</text>
+
+                    <line x1="260" y1="206" x2="260" y2="231" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,236 257,229 263,229" fill="#37352f"/>
+
+                    <rect x="130" y="238" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="260" y="265" text-anchor="middle" fill="#37352f" font-size="14">Convert to Title Case</text>
+
+                    <line x1="260" y1="282" x2="260" y2="307" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,312 257,305 263,305" fill="#37352f"/>
+
+                    <rect x="130" y="314" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="260" y="341" text-anchor="middle" fill="#37352f" font-size="14">Return cleaned DataFrame</text>
+
+                    <line x1="260" y1="358" x2="260" y2="383" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,388 257,381 263,381" fill="#37352f"/>
+
+                    <rect x="130" y="390" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="260" y="417" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Normalized Headers</text>
+                </svg>
+            </div>
+
+            <h3>Example</h3>
+            <div class="example-box">
+                <h4>Before &rarr; After</h4>
+                <table>
+                    <tr><th>Original Header</th><th>Normalized Header</th></tr>
+                    <tr><td><code>"  article  title  "</code></td><td><code>"Article Title"</code></td></tr>
+                    <tr><td><code>"DATE_PUBLISHED"</code></td><td><code>"Date_Published"</code></td></tr>
+                    <tr><td><code>"media outlet"</code></td><td><code>"Media Outlet"</code></td></tr>
+                    <tr><td><code>"   AUTHOR   NAME  "</code></td><td><code>"Author Name"</code></td></tr>
+                </table>
+            </div>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path to the CSV or Excel file</td></tr>
+            </table>
+
+            <div class="callout tip">
+                <div class="callout-label">Best Practice</div>
+                <p>Always run Header Normalization as the <strong>first step</strong> in your pipeline. Clean, consistent headers ensure all downstream modules can reference columns reliably.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Full Workflow</button>
+                <button class="nav-button" onclick="nextTab()">Next: Duplicate Remover</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - DUPLICATE REMOVER -->
+        <!-- ============================================================ -->
+        <div id="mod-duplicates" class="tab-content">
+            <h2>Duplicate Remover</h2>
+            <span class="module-badge badge-cleaning">Cleaning Module</span>
+            <p><code>src/cleaning/removing_duplicates.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Identifies and removes duplicate rows from your dataset. You can check for duplicates across all columns (exact match) or specify particular columns to compare (partial match). This is essential when consolidating media data from overlapping sources.</p>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>Merging data from multiple media monitoring platforms</li>
+                <li>The same article appears multiple times with slightly different metadata</li>
+                <li>You want each media mention to be counted only once in your analysis</li>
+            </ul>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="560" style="max-width: 580px; margin: 0 auto; display: block;">
+                    <rect x="160" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="290" y="38" text-anchor="middle" fill="white" font-size="14" font-weight="500">Input: DataFrame + Columns</text>
+
+                    <line x1="290" y1="54" x2="290" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,84 287,77 293,77" fill="#37352f"/>
+
+                    <rect x="160" y="86" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="290" y="113" text-anchor="middle" fill="#37352f" font-size="14">Read file via CSV Handler</text>
+
+                    <line x1="290" y1="130" x2="290" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,160 287,153 293,153" fill="#37352f"/>
+
+                    <!-- Decision -->
+                    <polygon points="290,162 400,197 290,232 180,197" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="290" y="201" text-anchor="middle" fill="#37352f" font-size="12" font-weight="500">Columns specified?</text>
+
+                    <!-- Yes branch -->
+                    <line x1="400" y1="197" x2="440" y2="197" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="415" y="190" fill="#37352f" font-size="11">Yes</text>
+                    <line x1="440" y1="197" x2="440" y2="260" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="440,265 437,258 443,258" fill="#37352f"/>
+
+                    <rect x="340" y="267" width="200" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="440" y="285" text-anchor="middle" fill="#37352f" font-size="12">Validate column names</text>
+                    <text x="440" y="300" text-anchor="middle" fill="#37352f" font-size="12">(case-insensitive)</text>
+
+                    <line x1="440" y1="311" x2="440" y2="336" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="440,341 437,334 443,334" fill="#37352f"/>
+
+                    <rect x="340" y="343" width="200" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="440" y="370" text-anchor="middle" fill="#37352f" font-size="12">Drop dupes on those columns</text>
+
+                    <line x1="440" y1="387" x2="440" y2="420" stroke="#37352f" stroke-width="1.5"/>
+                    <line x1="440" y1="420" x2="290" y2="420" stroke="#37352f" stroke-width="1.5"/>
+
+                    <!-- No branch -->
+                    <line x1="180" y1="197" x2="140" y2="197" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="155" y="190" fill="#37352f" font-size="11">No</text>
+                    <line x1="140" y1="197" x2="140" y2="343" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="140,348 137,341 143,341" fill="#37352f"/>
+
+                    <rect x="40" y="350" width="200" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="140" y="377" text-anchor="middle" fill="#37352f" font-size="12">Drop dupes on all columns</text>
+
+                    <line x1="140" y1="394" x2="140" y2="420" stroke="#37352f" stroke-width="1.5"/>
+                    <line x1="140" y1="420" x2="290" y2="420" stroke="#37352f" stroke-width="1.5"/>
+
+                    <!-- Merge back -->
+                    <line x1="290" y1="420" x2="290" y2="445" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,450 287,443 293,443" fill="#37352f"/>
+
+                    <rect x="160" y="452" width="260" height="44" rx="4" fill="white" stroke="#6940a5" stroke-width="1.5"/>
+                    <text x="290" y="479" text-anchor="middle" fill="#37352f" font-size="14">Return de-duplicated DataFrame</text>
+
+                    <line x1="290" y1="496" x2="290" y2="515" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,520 287,513 293,513" fill="#37352f"/>
+
+                    <rect x="160" y="522" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="290" y="549" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Unique Rows Only</text>
+                </svg>
+            </div>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>columns</code></td><td>list[str]</td><td>None (all)</td><td>Specific columns to check for duplicates</td></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path to the CSV or Excel file</td></tr>
+            </table>
+
+            <h3>Error Handling</h3>
+            <ul>
+                <li><strong>Invalid columns</strong> &mdash; If you specify column names that don't exist, a <code>ValueError</code> is raised listing the unrecognized names.</li>
+                <li><strong>Case mismatch</strong> &mdash; Column matching is case-insensitive, so <code>"article title"</code> matches <code>"Article Title"</code>.</li>
+            </ul>
+
+            <div class="callout tip">
+                <div class="callout-label">Tip for Media Analysts</div>
+                <p>For media data, de-duplicating on <strong>"Title" + "Source"</strong> is usually more useful than all columns, since timestamps and minor metadata often differ between duplicate entries.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Header Normalization</button>
+                <button class="nav-button" onclick="nextTab()">Next: Date Metadata</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - DATE METADATA -->
+        <!-- ============================================================ -->
+        <div id="mod-dates" class="tab-content">
+            <h2>Date Metadata Extraction</h2>
+            <span class="module-badge badge-transformation">Transformation Module</span>
+            <p><code>src/transformation/add_dates_metadata.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Automatically detects date columns in your dataset and generates four new derived columns &mdash; Year, Month, Day, and Quarter &mdash; inserted immediately after the detected date column. These are essential for time-based filtering, trend analysis, and quarterly reporting.</p>
+
+            <h3>Date Column Auto-Detection</h3>
+            <p>The module searches for a date column in this priority order:</p>
+            <ol>
+                <li><code>date</code></li>
+                <li><code>date_published</code></li>
+                <li><code>published_date</code></li>
+                <li><code>published</code></li>
+                <li><code>datetime</code></li>
+                <li><code>timestamp</code></li>
+                <li>Any column name containing <code>"date"</code></li>
+            </ol>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="560" style="max-width: 520px; margin: 0 auto; display: block;">
+                    <rect x="130" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="260" y="38" text-anchor="middle" fill="white" font-size="14" font-weight="500">Input: DataFrame</text>
+
+                    <line x1="260" y1="54" x2="260" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,84 257,77 263,77" fill="#37352f"/>
+
+                    <rect x="130" y="86" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="260" y="113" text-anchor="middle" fill="#37352f" font-size="14">Read file via CSV Handler</text>
+
+                    <line x1="260" y1="130" x2="260" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,160 257,153 263,153" fill="#37352f"/>
+
+                    <rect x="130" y="162" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="260" y="185" text-anchor="middle" fill="#37352f" font-size="13">Search for date column</text>
+                    <text x="260" y="199" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(priority list + fallback)</text>
+
+                    <line x1="260" y1="206" x2="260" y2="231" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,236 257,229 263,229" fill="#37352f"/>
+
+                    <rect x="130" y="238" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="260" y="265" text-anchor="middle" fill="#37352f" font-size="14">Parse dates (dayfirst=True)</text>
+
+                    <line x1="260" y1="282" x2="260" y2="307" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,312 257,305 263,305" fill="#37352f"/>
+
+                    <rect x="130" y="314" width="260" height="56" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="260" y="337" text-anchor="middle" fill="#37352f" font-size="13">Extract: Year, Month, Day,</text>
+                    <text x="260" y="354" text-anchor="middle" fill="#37352f" font-size="13">Quarter</text>
+
+                    <line x1="260" y1="370" x2="260" y2="395" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,400 257,393 263,393" fill="#37352f"/>
+
+                    <rect x="130" y="402" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="260" y="429" text-anchor="middle" fill="#37352f" font-size="13">Insert columns after date column</text>
+
+                    <line x1="260" y1="446" x2="260" y2="471" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="260,476 257,469 263,469" fill="#37352f"/>
+
+                    <rect x="130" y="478" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="260" y="505" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Enriched DataFrame</text>
+                </svg>
+            </div>
+
+            <h3>Generated Columns</h3>
+            <table>
+                <tr><th>Column</th><th>Type</th><th>Example</th><th>Use Case</th></tr>
+                <tr><td><strong>Year</strong></td><td>Integer</td><td>2025</td><td>Year-over-year comparisons</td></tr>
+                <tr><td><strong>Month</strong></td><td>String (abbrev)</td><td>Mar</td><td>Monthly trend charts</td></tr>
+                <tr><td><strong>Day</strong></td><td>Integer</td><td>15</td><td>Daily volume tracking</td></tr>
+                <tr><td><strong>Quarter</strong></td><td>Integer (1-4)</td><td>1</td><td>Quarterly executive reports</td></tr>
+            </table>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path to the CSV or Excel file</td></tr>
+            </table>
+
+            <div class="callout warning">
+                <div class="callout-label">Date Format Note</div>
+                <p>The module uses <code>dayfirst=True</code> (international format: DD/MM/YYYY). If your dates are in US format (MM/DD/YYYY), ambiguous dates like <code>03/04/2025</code> will be interpreted as April 3rd, not March 4th. Verify a few rows after processing.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Duplicate Remover</button>
+                <button class="nav-button" onclick="nextTab()">Next: Translation</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - TRANSLATION -->
+        <!-- ============================================================ -->
+        <div id="mod-translate" class="tab-content">
+            <h2>Column Translation</h2>
+            <span class="module-badge badge-transformation">Transformation Module</span>
+            <p><code>src/transformation/translate_columns.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Translates text content in selected columns from one language to another using Google Translate. Designed for international media analytics where coverage arrives in multiple languages and must be unified for analysis.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Auto-language detection</strong> &mdash; Detects source language per cell; skips text already in target language.</li>
+                <li><strong>Similarity grouping</strong> &mdash; Groups similar texts (85%+ TF-IDF cosine similarity) and translates only the representative, applying the result to all group members.</li>
+                <li><strong>Translation caching</strong> &mdash; Identical strings are translated once and cached for the session.</li>
+                <li><strong>Parallel processing</strong> &mdash; Up to 10 concurrent threads for faster execution.</li>
+                <li><strong>Original preservation</strong> &mdash; Translations are placed in new columns prefixed with <code>T_</code>, keeping originals intact.</li>
+            </ul>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="740" style="max-width: 540px; margin: 0 auto; display: block;">
+                    <rect x="140" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="270" y="30" text-anchor="middle" fill="white" font-size="12" font-weight="500">Input: DataFrame + Language</text>
+                    <text x="270" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="500">+ Column Selection</text>
+
+                    <line x1="270" y1="54" x2="270" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,84 267,77 273,77" fill="#37352f"/>
+
+                    <rect x="140" y="86" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="113" text-anchor="middle" fill="#37352f" font-size="14">Read file via CSV Handler</text>
+
+                    <line x1="270" y1="130" x2="270" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,160 267,153 273,153" fill="#37352f"/>
+
+                    <rect x="140" y="162" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="189" text-anchor="middle" fill="#37352f" font-size="13">Select target columns to translate</text>
+
+                    <line x1="270" y1="206" x2="270" y2="231" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,236 267,229 273,229" fill="#37352f"/>
+
+                    <rect x="140" y="238" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="265" text-anchor="middle" fill="#37352f" font-size="13">Build TF-IDF similarity groups</text>
+
+                    <line x1="270" y1="282" x2="270" y2="307" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,312 267,305 273,305" fill="#37352f"/>
+
+                    <rect x="140" y="314" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="341" text-anchor="middle" fill="#37352f" font-size="13">Detect language per cell</text>
+
+                    <line x1="270" y1="358" x2="270" y2="383" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,388 267,381 273,381" fill="#37352f"/>
+
+                    <!-- Decision: already target lang? -->
+                    <polygon points="270,390 380,420 270,450 160,420" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="270" y="424" text-anchor="middle" fill="#37352f" font-size="11" font-weight="500">Already target lang?</text>
+
+                    <text x="405" y="415" fill="rgba(55,53,47,0.5)" font-size="11">Yes: Skip</text>
+                    <line x1="380" y1="420" x2="420" y2="420" stroke="rgba(55,53,47,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+                    <text x="270" y="470" fill="#37352f" font-size="11">No</text>
+                    <line x1="270" y1="450" x2="270" y2="483" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,488 267,481 273,481" fill="#37352f"/>
+
+                    <rect x="140" y="490" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="508" text-anchor="middle" fill="#37352f" font-size="12">Translate via Google Translate</text>
+                    <text x="270" y="524" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(parallel, cached, grouped)</text>
+
+                    <line x1="270" y1="534" x2="270" y2="559" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,564 267,557 273,557" fill="#37352f"/>
+
+                    <rect x="140" y="566" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="593" text-anchor="middle" fill="#37352f" font-size="13">Add T_ prefixed columns</text>
+
+                    <line x1="270" y1="610" x2="270" y2="635" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,640 267,633 273,633" fill="#37352f"/>
+
+                    <rect x="140" y="642" width="260" height="44" rx="4" fill="white" stroke="#2e6b8a" stroke-width="1.5"/>
+                    <text x="270" y="669" text-anchor="middle" fill="#37352f" font-size="13">Return enriched DataFrame</text>
+
+                    <line x1="270" y1="686" x2="270" y2="705" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,710 267,703 273,703" fill="#37352f"/>
+
+                    <rect x="140" y="712" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="270" y="739" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Translated DataFrame</text>
+                </svg>
+            </div>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>target_language</code></td><td>str</td><td><code>'en'</code></td><td>Target language code</td></tr>
+                <tr><td><code>source_language</code></td><td>str</td><td><code>'auto'</code></td><td>Source language (or auto-detect)</td></tr>
+                <tr><td><code>columns_to_process</code></td><td>list[str]</td><td>None</td><td>Columns to translate</td></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path to CSV or Excel file</td></tr>
+                <tr><td><code>progress_callback</code></td><td>callable</td><td>None</td><td>Callback for progress updates</td></tr>
+            </table>
+
+            <h3>Common Language Codes</h3>
+            <table>
+                <tr><td>English: <code>en</code></td><td>Spanish: <code>es</code></td><td>French: <code>fr</code></td><td>Filipino: <code>tl</code></td></tr>
+                <tr><td>German: <code>de</code></td><td>Japanese: <code>ja</code></td><td>Korean: <code>ko</code></td><td>Chinese: <code>zh</code></td></tr>
+                <tr><td>Arabic: <code>ar</code></td><td>Portuguese: <code>pt</code></td><td>Indonesian: <code>id</code></td><td>Thai: <code>th</code></td></tr>
+            </table>
+
+            <h3>Performance Optimizations</h3>
+            <table>
+                <tr><th>Strategy</th><th>How It Works</th><th>Impact</th></tr>
+                <tr><td>Similarity Grouping</td><td>85%+ TF-IDF cosine similarity clusters</td><td>20-60% fewer API calls</td></tr>
+                <tr><td>Caching</td><td>In-memory cache of translated strings</td><td>Zero redundant calls</td></tr>
+                <tr><td>Language Skip</td><td>Detects and skips target-language text</td><td>Avoids unnecessary work</td></tr>
+                <tr><td>Parallel Threads</td><td>Up to 10 concurrent workers</td><td>Faster throughput</td></tr>
+            </table>
+
+            <div class="callout warning">
+                <div class="callout-label">Important</div>
+                <p>This module requires an <strong>active internet connection</strong>. Translation of large datasets (1,000+ rows) may take several minutes. Only translate the columns you actually need for analysis.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Date Metadata</button>
+                <button class="nav-button" onclick="nextTab()">Next: CSV Handler</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - CSV HANDLER -->
+        <!-- ============================================================ -->
+        <div id="mod-csvhandler" class="tab-content">
+            <h2>CSV Handler Utility</h2>
+            <span class="module-badge badge-utility">Utility Module</span>
+            <p><code>src/utils/csv_handler.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>The foundational I/O layer for the entire application. Every module uses the CSV Handler to read and write data files. It handles the messy reality of real-world CSV files &mdash; different encodings, delimiters, and formats &mdash; so other modules don't have to.</p>
+
+            <h3>Functions</h3>
+
+            <div class="process-section">
+                <h4><code>read_csv(file_path)</code></h4>
+                <p>Reads a CSV or Excel file with intelligent fallback:</p>
+                <ol>
+                    <li>Tries encodings: <code>utf-8</code> &rarr; <code>utf-8-sig</code> &rarr; <code>latin1</code> &rarr; <code>cp1252</code></li>
+                    <li>For each encoding, tries delimiters: <code>tab</code> &rarr; <code>comma</code> &rarr; <code>semicolon</code></li>
+                    <li>If all CSV attempts fail, tries reading as Excel (<code>.xlsx</code> / <code>.xls</code>)</li>
+                </ol>
+            </div>
+
+            <div class="process-section">
+                <h4><code>write_csv(data, file_path)</code></h4>
+                <p>Writes a pandas DataFrame to CSV (UTF-8, no index column).</p>
+            </div>
+
+            <div class="process-section">
+                <h4><code>append_csv(data, file_path)</code></h4>
+                <p>Appends rows to an existing CSV without writing a header. Useful for incremental data collection.</p>
+            </div>
+
+            <div class="process-section">
+                <h4><code>read_csv_to_dict(file_path)</code></h4>
+                <p>Returns data as a list of dictionaries (one per row). Used internally by the Date Metadata module.</p>
+            </div>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="520" style="max-width: 560px; margin: 0 auto; display: block;">
+                    <rect x="150" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="280" y="38" text-anchor="middle" fill="white" font-size="14" font-weight="500">Input: File Path</text>
+
+                    <line x1="280" y1="54" x2="280" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="280,84 277,77 283,77" fill="#37352f"/>
+
+                    <rect x="150" y="86" width="260" height="44" rx="4" fill="white" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="280" y="113" text-anchor="middle" fill="#37352f" font-size="13">Try encoding + delimiter combo</text>
+
+                    <line x1="280" y1="130" x2="280" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="280,160 277,153 283,153" fill="#37352f"/>
+
+                    <!-- Decision -->
+                    <polygon points="280,162 380,197 280,232 180,197" fill="white" stroke="#37352f" stroke-width="1.5"/>
+                    <text x="280" y="201" text-anchor="middle" fill="#37352f" font-size="12" font-weight="500">Success?</text>
+
+                    <!-- No: loop back -->
+                    <text x="155" y="190" fill="#37352f" font-size="11">No</text>
+                    <line x1="180" y1="197" x2="120" y2="197" stroke="#37352f" stroke-width="1.5"/>
+                    <line x1="120" y1="197" x2="120" y2="108" stroke="#37352f" stroke-width="1.5"/>
+                    <line x1="120" y1="108" x2="150" y2="108" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="150,108 143,105 143,111" fill="#37352f"/>
+                    <text x="90" y="155" fill="rgba(55,53,47,0.5)" font-size="10" text-anchor="middle" transform="rotate(-90, 90, 155)">Next combo</text>
+
+                    <!-- Yes -->
+                    <text x="280" y="250" fill="#37352f" font-size="11">Yes</text>
+                    <line x1="280" y1="232" x2="280" y2="275" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="280,280 277,273 283,273" fill="#37352f"/>
+
+                    <rect x="150" y="282" width="260" height="44" rx="4" fill="white" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="280" y="309" text-anchor="middle" fill="#37352f" font-size="14">Return DataFrame</text>
+
+                    <line x1="280" y1="326" x2="280" y2="351" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="280,356 277,349 283,349" fill="#37352f"/>
+
+                    <rect x="150" y="358" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="280" y="385" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: pandas DataFrame</text>
+
+                    <!-- All failed branch -->
+                    <text x="405" y="190" fill="#37352f" font-size="11">All failed</text>
+                    <line x1="380" y1="197" x2="440" y2="197" stroke="rgba(55,53,47,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+                    <line x1="440" y1="197" x2="440" y2="282" stroke="rgba(55,53,47,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+                    <polygon points="440,287 437,280 443,280" fill="rgba(55,53,47,0.3)"/>
+
+                    <rect x="420" y="289" width="120" height="36" rx="4" fill="white" stroke="#d9730d" stroke-width="1.5"/>
+                    <text x="480" y="312" text-anchor="middle" fill="#d9730d" font-size="12">Try as Excel</text>
+                </svg>
+            </div>
+
+            <h3>Supported Formats</h3>
+            <table>
+                <tr><th>Format</th><th>Extensions</th><th>Support</th></tr>
+                <tr><td>CSV (UTF-8)</td><td>.csv</td><td>Primary</td></tr>
+                <tr><td>CSV (Latin-1 / CP-1252)</td><td>.csv</td><td>Auto-fallback</td></tr>
+                <tr><td>Tab-separated</td><td>.csv, .tsv</td><td>Auto-detected</td></tr>
+                <tr><td>Semicolon-separated</td><td>.csv</td><td>Auto-detected</td></tr>
+                <tr><td>Excel</td><td>.xlsx, .xls</td><td>Final fallback</td></tr>
+            </table>
+
+            <div class="callout tip">
+                <div class="callout-label">For Media Analysts</div>
+                <p>You don't need to worry about file encoding or delimiters. The CSV Handler tries all common combinations automatically. Files exported from Excel, Google Sheets, Meltwater, Cision, or other media monitoring platforms should all work out of the box.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Translation</button>
+                <button class="nav-button" onclick="nextTab()">Next: Topic Clustering</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - TOPIC CLUSTERING -->
+        <!-- ============================================================ -->
+        <div id="mod-clustering" class="tab-content">
+            <h2>Topic Clustering</h2>
+            <span class="module-badge badge-analysis">Analysis Module</span>
+            <p><code>src/clustering/topic_clustering.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Automatically groups text data (headlines, summaries, descriptions) into thematic clusters using machine learning. It applies TF-IDF vectorization and K-Means clustering to discover hidden topics within your media dataset, then provides rich visualizations to help you understand and present the results.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Text Cleaning</strong> &mdash; Optional removal of HTML tags, URLs, email addresses, and punctuation before analysis.</li>
+                <li><strong>TF-IDF Vectorization</strong> &mdash; Converts text into numerical vectors that capture the importance of each word relative to the full corpus.</li>
+                <li><strong>K-Means Clustering</strong> &mdash; Groups documents into a configurable number of topic clusters.</li>
+                <li><strong>Auto-Detection</strong> &mdash; Automatically identifies the text column if not specified.</li>
+                <li><strong>Rich Visualizations</strong> &mdash; Cluster distribution, PCA scatter plots, top terms per cluster, heatmaps, pie charts, and model metrics.</li>
+            </ul>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="680" style="max-width: 540px; margin: 0 auto; display: block;">
+                    <rect x="140" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="270" y="28" text-anchor="middle" fill="white" font-size="12" font-weight="500">Input: DataFrame + Text Column</text>
+                    <text x="270" y="44" text-anchor="middle" fill="white" font-size="12" font-weight="500">+ Cluster Count</text>
+
+                    <line x1="270" y1="54" x2="270" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,84 267,77 273,77" fill="#37352f"/>
+
+                    <rect x="140" y="86" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="113" text-anchor="middle" fill="#37352f" font-size="14">Read file via CSV Handler</text>
+
+                    <line x1="270" y1="130" x2="270" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,160 267,153 273,153" fill="#37352f"/>
+
+                    <rect x="140" y="162" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="185" text-anchor="middle" fill="#37352f" font-size="13">Detect / select text column</text>
+                    <text x="270" y="199" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(auto: first string-type column)</text>
+
+                    <line x1="270" y1="206" x2="270" y2="231" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,236 267,229 273,229" fill="#37352f"/>
+
+                    <rect x="140" y="238" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="265" text-anchor="middle" fill="#37352f" font-size="13">Clean text (optional)</text>
+
+                    <line x1="270" y1="282" x2="270" y2="307" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,312 267,305 273,305" fill="#37352f"/>
+
+                    <rect x="140" y="314" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="341" text-anchor="middle" fill="#37352f" font-size="13">TF-IDF Vectorization</text>
+
+                    <line x1="270" y1="358" x2="270" y2="383" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,388 267,381 273,381" fill="#37352f"/>
+
+                    <rect x="140" y="390" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="417" text-anchor="middle" fill="#37352f" font-size="13">K-Means Clustering</text>
+
+                    <line x1="270" y1="434" x2="270" y2="459" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,464 267,457 273,457" fill="#37352f"/>
+
+                    <rect x="140" y="466" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="493" text-anchor="middle" fill="#37352f" font-size="13">Add Cluster_Topic column</text>
+
+                    <line x1="270" y1="510" x2="270" y2="535" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,540 267,533 273,533" fill="#37352f"/>
+
+                    <rect x="140" y="542" width="260" height="44" rx="4" fill="white" stroke="#0e6ba8" stroke-width="1.5"/>
+                    <text x="270" y="560" text-anchor="middle" fill="#37352f" font-size="12">Generate visualizations</text>
+                    <text x="270" y="576" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(PCA, bar chart, heatmap, pie)</text>
+
+                    <line x1="270" y1="586" x2="270" y2="611" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="270,616 267,609 273,609" fill="#37352f"/>
+
+                    <rect x="140" y="618" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="270" y="645" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Clustered DataFrame</text>
+                </svg>
+            </div>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path to CSV or Excel file</td></tr>
+                <tr><td><code>text_column</code></td><td>str</td><td>Auto-detect</td><td>Column containing text to cluster</td></tr>
+                <tr><td><code>n_clusters</code></td><td>int</td><td>5</td><td>Number of topic clusters (2-20)</td></tr>
+                <tr><td><code>max_df</code></td><td>float</td><td>0.95</td><td>Ignore words in more than this fraction of documents</td></tr>
+                <tr><td><code>min_df</code></td><td>int</td><td>1</td><td>Ignore words in fewer than this many documents</td></tr>
+                <tr><td><code>n_init</code></td><td>int</td><td>10</td><td>Number of K-Means initializations</td></tr>
+                <tr><td><code>clean_text_option</code></td><td>bool</td><td>True</td><td>Clean text before clustering</td></tr>
+                <tr><td><code>progress_callback</code></td><td>callable</td><td>None</td><td>Callback for progress updates</td></tr>
+            </table>
+
+            <h3>Visualizations Generated</h3>
+            <table>
+                <tr><th>Chart</th><th>What It Shows</th></tr>
+                <tr><td>Distribution Table</td><td>Row count and percentage per cluster</td></tr>
+                <tr><td>Bar Chart</td><td>Cluster sizes as horizontal bars</td></tr>
+                <tr><td>Top Terms</td><td>10 most distinctive keywords per cluster</td></tr>
+                <tr><td>PCA Scatter Plot</td><td>2D projection of all documents, colored by cluster</td></tr>
+                <tr><td>Pie Chart</td><td>Proportional cluster sizes</td></tr>
+                <tr><td>Terms Heatmap</td><td>Term importance scores across all clusters</td></tr>
+                <tr><td>Inertia &amp; Distance</td><td>Model quality metrics</td></tr>
+            </table>
+
+            <h3>How to Interpret Results</h3>
+            <div class="callout tip">
+                <div class="callout-label">Labeling Clusters</div>
+                <p>Clusters are assigned numeric IDs (0, 1, 2, ...). To give them meaningful names, check the <strong>Top Terms</strong> for each cluster &mdash; these are the most distinctive keywords. Read a few sample articles from each cluster to confirm the theme, then rename in your analysis (e.g., Cluster 0 = "Economy", Cluster 1 = "Politics").</p>
+            </div>
+
+            <div class="callout tip">
+                <div class="callout-label">Choosing Cluster Count</div>
+                <p>Start with <strong>5 clusters</strong> (default). If topics feel too broad, increase. If they overlap, decrease. Check the <strong>inertia score</strong> &mdash; lower is better, but with diminishing returns.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>No internet required</strong> &mdash; Unlike translation, clustering runs entirely on your local machine using scikit-learn.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: CSV Handler</button>
+                <button class="nav-button" onclick="nextTab()">Next: CSV Merge</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: MODULE - CSV MERGE -->
+        <!-- ============================================================ -->
+        <div id="mod-merge" class="tab-content">
+            <h2>CSV Merge</h2>
+            <span class="module-badge badge-merge">Merge Module</span>
+            <p><code>src/merge/merge_csv.py</code></p>
+
+            <hr class="divider">
+
+            <h3>Purpose</h3>
+            <p>Combines multiple CSV files into a single consolidated dataset. Each file is tagged with a Country Code derived from the first two characters of its filename, making it ideal for consolidating international media coverage data.</p>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>You have separate media coverage files per country (e.g., <code>PH_coverage.csv</code>, <code>US_coverage.csv</code>)</li>
+                <li>You need a unified dataset for cross-country analysis</li>
+                <li>You want automatic source identification via the Country Code column</li>
+            </ul>
+
+            <h3>Workflow Diagram</h3>
+            <div class="workflow-chart">
+                <svg width="100%" height="560" style="max-width: 580px; margin: 0 auto; display: block;">
+                    <rect x="160" y="10" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="290" y="30" text-anchor="middle" fill="white" font-size="12" font-weight="500">Input: Multiple CSV Files</text>
+                    <text x="290" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="500">(2+ uploaded files)</text>
+
+                    <line x1="290" y1="54" x2="290" y2="79" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,84 287,77 293,77" fill="#37352f"/>
+
+                    <!-- Loop over files -->
+                    <rect x="120" y="86" width="340" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="113" text-anchor="middle" fill="#37352f" font-size="14">For each uploaded file:</text>
+
+                    <line x1="290" y1="130" x2="290" y2="155" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,160 287,153 293,153" fill="#37352f"/>
+
+                    <rect x="160" y="162" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="185" text-anchor="middle" fill="#37352f" font-size="13">Extract country code from filename</text>
+                    <text x="290" y="199" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(first 2 chars, uppercased)</text>
+
+                    <line x1="290" y1="206" x2="290" y2="231" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,236 267,229 293,229" fill="#37352f"/>
+
+                    <rect x="160" y="238" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="260" text-anchor="middle" fill="#37352f" font-size="12">Read file (try encodings/delimiters)</text>
+                    <text x="290" y="275" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(incl. UTF-16 support)</text>
+
+                    <line x1="290" y1="282" x2="290" y2="307" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,312 287,305 293,305" fill="#37352f"/>
+
+                    <rect x="160" y="314" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="341" text-anchor="middle" fill="#37352f" font-size="13">Add Country_Code column</text>
+
+                    <line x1="290" y1="358" x2="290" y2="383" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,388 287,381 293,381" fill="#37352f"/>
+
+                    <!-- Loop bracket -->
+                    <line x1="135" y1="86" x2="135" y2="358" stroke="rgba(55,53,47,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+                    <text x="130" y="225" text-anchor="middle" fill="rgba(55,53,47,0.35)" font-size="11" font-weight="500" transform="rotate(-90, 130, 225)">Repeat per file</text>
+
+                    <!-- Concat -->
+                    <rect x="160" y="390" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="417" text-anchor="middle" fill="#37352f" font-size="13">Concatenate all DataFrames</text>
+
+                    <line x1="290" y1="434" x2="290" y2="459" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,464 287,457 293,457" fill="#37352f"/>
+
+                    <rect x="160" y="466" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="493" text-anchor="middle" fill="#37352f" font-size="13">Return merged DataFrame</text>
+
+                    <line x1="290" y1="510" x2="290" y2="529" stroke="#37352f" stroke-width="1.5"/>
+                    <polygon points="290,534 287,527 293,527" fill="#37352f"/>
+
+                    <rect x="160" y="536" width="260" height="44" rx="4" fill="#37352f"/>
+                    <text x="290" y="563" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Unified Dataset</text>
+                </svg>
+            </div>
+
+            <h3>Parameters</h3>
+            <table class="param-table">
+                <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path for single-file mode</td></tr>
+                <tr><td><code>uploaded_files</code></td><td>list[UploadedFile]</td><td>None</td><td>Streamlit uploaded file objects</td></tr>
+            </table>
+
+            <h3>File Naming Convention</h3>
+            <div class="callout warning">
+                <div class="callout-label">Important</div>
+                <p>The Country Code comes from the <strong>first two characters</strong> of the filename. Name your files with ISO country codes as prefixes for accurate tagging:</p>
+            </div>
+            <table>
+                <tr><th>Filename</th><th>Country Code</th></tr>
+                <tr><td><code>PH_media_coverage.csv</code></td><td>PH</td></tr>
+                <tr><td><code>us_news_data.csv</code></td><td>US</td></tr>
+                <tr><td><code>fr-articles-2025.csv</code></td><td>FR</td></tr>
+                <tr><td><code>JP_headlines.csv</code></td><td>JP</td></tr>
+            </table>
+
+            <h3>Example Output</h3>
+            <div class="example-box">
+                <h4>Merged Result</h4>
+                <table>
+                    <tr><th>Country_Code</th><th>Title</th><th>Source</th></tr>
+                    <tr><td>PH</td><td>New Policy</td><td>Daily News</td></tr>
+                    <tr><td>PH</td><td>Budget Update</td><td>Tribune</td></tr>
+                    <tr><td>US</td><td>Market Rally</td><td>NY Times</td></tr>
+                    <tr><td>US</td><td>Trade Deal</td><td>WSJ</td></tr>
+                </table>
+            </div>
+
+            <h3>Requirements</h3>
+            <ul>
+                <li><strong>Minimum 2 files</strong> &mdash; The merge step is only available when you upload 2 or more files.</li>
+                <li><strong>Files can have different columns</strong> &mdash; Missing columns are filled with empty values.</li>
+                <li><strong>Supports UTF-16</strong> &mdash; In addition to standard encodings, this module handles UTF-16 tab-delimited files.</li>
+            </ul>
+
+            <div class="callout tip">
+                <div class="callout-label">Tip for Media Analysts</div>
+                <p>Run the merge step <strong>before</strong> other pipeline steps. This way, header normalization, deduplication, and translation all operate on the complete combined dataset rather than individual files.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Topic Clustering</button>
+                <button class="nav-button" onclick="nextTab()">Next: Quick Start</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: QUICK START -->
+        <!-- ============================================================ -->
+        <div id="quickstart" class="tab-content">
+            <h2>Quick Start Guide</h2>
+
+            <p>Get up and running in minutes. This guide walks you through installation, launching the app, and processing your first dataset.</p>
+
+            <hr class="divider">
+
+            <h3>Step 1: Install Dependencies</h3>
+            <div class="step-item">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                    <p>Open a terminal and navigate to the project folder:</p>
+                    <pre>cd sevengen-internshipweek4.2
+pip install -r requirements.txt</pre>
+                </div>
+            </div>
+
+            <h3>Step 2: Launch the Application</h3>
+            <div class="step-item">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                    <p>Run the app using the main entry point:</p>
+                    <pre>python main.py</pre>
+                    <p>Or launch Streamlit directly:</p>
+                    <pre>streamlit run app.py</pre>
+                    <p>Your browser will open to the Streamlit dashboard.</p>
+                </div>
+            </div>
+
+            <h3>Step 3: Upload Your File</h3>
+            <div class="step-item">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                    <p>Use the file uploader in the Streamlit interface to upload your CSV or Excel file. The app accepts:</p>
+                    <ul>
+                        <li>CSV files (any encoding: UTF-8, Latin-1, etc.)</li>
+                        <li>Excel files (.xlsx)</li>
+                        <li>Tab-separated or semicolon-separated files</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Step 4: Select Pipeline Steps</h3>
+            <div class="step-item">
+                <span class="step-number">4</span>
+                <div class="step-content">
+                    <p>Choose which processing steps to apply:</p>
+                    <table>
+                        <tr><th>Step</th><th>What It Does</th><th>Recommended Order</th></tr>
+                        <tr><td>Merge CSV Files</td><td>Combines multiple files with Country Code</td><td>1st (if using multiple files)</td></tr>
+                        <tr><td>Normalize Headers</td><td>Cleans column names</td><td>2nd (always run early)</td></tr>
+                        <tr><td>Remove Duplicates</td><td>Eliminates duplicate rows</td><td>3rd</td></tr>
+                        <tr><td>Add Date Metadata</td><td>Adds Year/Month/Day/Quarter</td><td>4th</td></tr>
+                        <tr><td>Translate Columns</td><td>Translates text to target language</td><td>5th</td></tr>
+                        <tr><td>Topic Clustering</td><td>Groups text into topic clusters</td><td>6th (run last)</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <h3>Step 5: Run & Download</h3>
+            <div class="step-item">
+                <span class="step-number">5</span>
+                <div class="step-content">
+                    <p>Click <strong>"Run Pipeline"</strong>. Watch the progress bar as each step executes. When complete:</p>
+                    <ul>
+                        <li>Preview the first 100 rows in the browser</li>
+                        <li>Download as CSV or Excel using the download buttons</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <h3>Recommended Pipeline Order for Media Data</h3>
+            <div class="callout tip">
+                <div class="callout-label">Best Practice Pipeline</div>
+                <ol>
+                    <li><strong>Merge CSV Files</strong> &mdash; If you have multiple files, merge them first to create a unified dataset.</li>
+                    <li><strong>Normalize Headers</strong> &mdash; Ensures consistent column names for all subsequent steps.</li>
+                    <li><strong>Remove Duplicates</strong> &mdash; Eliminates redundant entries before enrichment.</li>
+                    <li><strong>Add Date Metadata</strong> &mdash; Enriches your data with time components for trend analysis.</li>
+                    <li><strong>Translate Columns</strong> &mdash; Translates only the unique, cleaned data.</li>
+                    <li><strong>Topic Clustering</strong> &mdash; Discovers themes in the final, clean dataset (most meaningful when run last).</li>
+                </ol>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: CSV Merge</button>
+                <button class="nav-button" onclick="nextTab()">Next: Adding Modules</button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: ADDING NEW MODULES -->
+        <!-- ============================================================ -->
+        <div id="adding-modules" class="tab-content">
+            <h2>Adding New Modules</h2>
+
+            <p>The application is designed for easy extensibility. Follow this guide to add a new processing module to the pipeline.</p>
+
+            <hr class="divider">
+
+            <h3>Step 1: Choose a Category</h3>
+            <p>Decide where your module belongs:</p>
+            <table>
+                <tr><th>Category</th><th>Directory</th><th>Purpose</th></tr>
+                <tr><td>Cleaning</td><td><code>src/cleaning/</code></td><td>Standardizes or removes data without adding new information</td></tr>
+                <tr><td>Transformation</td><td><code>src/transformation/</code></td><td>Enriches or converts data (adds columns, translates, etc.)</td></tr>
+                <tr><td>Clustering</td><td><code>src/clustering/</code></td><td>Groups or categorizes data (future)</td></tr>
+                <tr><td>Merge</td><td><code>src/merge/</code></td><td>Combines multiple datasets (future)</td></tr>
+                <tr><td>Utility</td><td><code>src/utils/</code></td><td>Shared helper functions (not a pipeline step)</td></tr>
+            </table>
+
+            <h3>Step 2: Create the Module File</h3>
+            <p>Create a new Python file in the appropriate directory. Follow this template:</p>
+
+            <pre>
+# src/cleaning/my_new_module.py  (or src/transformation/, etc.)
+
+from src.utils.csv_handler import read_csv
+
+def my_new_function(file_path=None, **kwargs):
+    """
+    Brief description of what this module does.
+
+    Parameters:
+        file_path (str): Path to the CSV or Excel file.
+        **kwargs: Any additional parameters your module needs.
+
+    Returns:
+        pd.DataFrame: The processed DataFrame.
+    """
+    # 1. Read the data
+    if file_path is None:
+        from config import RAW_DATA_FILE
+        file_path = RAW_DATA_FILE
+
+    df = read_csv(file_path)
+
+    # 2. Apply your transformation
+    # ... your processing logic here ...
+
+    # 3. Return the result
+    return df
+            </pre>
+
+            <h3>Step 3: Register in <code>__init__.py</code></h3>
+            <p>Add your function to the appropriate <code>__init__.py</code> for easy importing:</p>
+            <pre>
+# src/cleaning/__init__.py  (add your import)
+from .my_new_module import my_new_function
+            </pre>
+
+            <h3>Step 4: Add to the Pipeline in <code>app.py</code></h3>
+            <p>Add your module as a new pipeline step in the Streamlit app. Look for the section where steps are defined and add yours following the existing pattern:</p>
+            <pre>
+# In app.py, add to the pipeline steps:
+# 1. Add a checkbox for the user
+run_my_step = st.checkbox("My New Step")
+
+# 2. Add the execution logic in the pipeline loop
+if run_my_step:
+    from src.cleaning.my_new_module import my_new_function
+    df = my_new_function(file_path=temp_file)
+    write_csv(df, temp_file)
+            </pre>
+
+            <h3>Step 5: Add Documentation</h3>
+            <p>Create documentation for your new module in two places:</p>
+
+            <div class="process-section">
+                <h4>A. Markdown Documentation</h4>
+                <p>Create <code>docs/modules/my_new_module.md</code> following the format of existing module docs. Include:</p>
+                <ul>
+                    <li>Purpose and when to use it</li>
+                    <li>How to use (Streamlit and programmatic)</li>
+                    <li>Parameters table</li>
+                    <li>Input/Output examples</li>
+                    <li>Error handling notes</li>
+                    <li>Tips for media analysts</li>
+                </ul>
+            </div>
+
+            <div class="process-section">
+                <h4>B. Add a Tab to This HTML</h4>
+                <p>Add a new tab to <code>Project_Documentation.html</code>:</p>
+                <ol>
+                    <li>Add a <code>&lt;button&gt;</code> to the <code>.tabs</code> section</li>
+                    <li>Add a <code>&lt;div id="mod-mymodule" class="tab-content"&gt;</code> section</li>
+                    <li>Include a workflow diagram (SVG), parameters table, examples, and tips</li>
+                    <li>Add the tab ID to the <code>tabs</code> array in the JavaScript section</li>
+                </ol>
+            </div>
+
+            <hr class="divider">
+
+            <h3>Module Checklist</h3>
+            <p>Use this checklist when adding any new module:</p>
+            <table>
+                <tr><th>#</th><th>Task</th><th>Location</th></tr>
+                <tr><td>1</td><td>Create module Python file</td><td><code>src/{category}/my_module.py</code></td></tr>
+                <tr><td>2</td><td>Add import to category <code>__init__.py</code></td><td><code>src/{category}/__init__.py</code></td></tr>
+                <tr><td>3</td><td>Add import to top-level <code>src/__init__.py</code></td><td><code>src/__init__.py</code></td></tr>
+                <tr><td>4</td><td>Add pipeline step in Streamlit app</td><td><code>app.py</code></td></tr>
+                <tr><td>5</td><td>Add any new dependencies</td><td><code>requirements.txt</code></td></tr>
+                <tr><td>6</td><td>Create markdown documentation</td><td><code>docs/modules/my_module.md</code></td></tr>
+                <tr><td>7</td><td>Add tab to HTML documentation</td><td><code>docs/Project_Documentation.html</code></td></tr>
+                <tr><td>8</td><td>Update the Full Workflow diagram</td><td><code>docs/Project_Documentation.html</code> (workflow-full tab)</td></tr>
+                <tr><td>9</td><td>Test the module independently</td><td>Terminal / Python REPL</td></tr>
+                <tr><td>10</td><td>Test within the full pipeline</td><td>Streamlit app</td></tr>
+            </table>
+
+            <h3>Architecture Conventions</h3>
+            <div class="callout">
+                <ul>
+                    <li>Every module function should accept <code>file_path</code> as its first parameter (with a default fallback to config).</li>
+                    <li>Every module function should return a <code>pd.DataFrame</code>.</li>
+                    <li>Use <code>csv_handler.read_csv()</code> for reading &mdash; never <code>pd.read_csv()</code> directly.</li>
+                    <li>Keep modules independent &mdash; they should not import or depend on other pipeline modules.</li>
+                    <li>Handle errors gracefully &mdash; raise clear exceptions with user-friendly messages.</li>
+                </ul>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button" onclick="prevTab()">Previous: Quick Start</button>
+                <button class="nav-button" disabled>Next</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentTab = 0;
+        const tabs = ['overview', 'structure', 'ipo', 'workflow-full', 'mod-normalize', 'mod-duplicates', 'mod-dates', 'mod-translate', 'mod-csvhandler', 'mod-clustering', 'mod-merge', 'quickstart', 'adding-modules'];
+
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            currentTab = tabs.indexOf(tabName);
+        }
+
+        function nextTab() {
+            if (currentTab < tabs.length - 1) {
+                currentTab++;
+                activateTab(currentTab);
+            }
+        }
+
+        function prevTab() {
+            if (currentTab > 0) {
+                currentTab--;
+                activateTab(currentTab);
+            }
+        }
+
+        function activateTab(index) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+
+            document.getElementById(tabs[index]).classList.add('active');
+            tabButtons[index].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
