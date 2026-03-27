@@ -4,6 +4,7 @@ import pandas as pd
 import config
 from csv_handler import read_csv
 
+
 def remove_duplicates(
     columns: Optional[List[str]] = None,
     file_path: Optional[str | Path] = None,
@@ -24,35 +25,33 @@ def remove_duplicates(
     df = read_csv(path)
     df_work = df.copy()
     column_map = {col.lower(): col for col in df_work.columns}
-    
+
     def match_columns(user_columns: List[str]) -> Tuple[List[str], List[str]]:
         """Match user input columns to actual column names (case-insensitive)."""
         matched_columns: List[str] = []
         invalid_columns: List[str] = []
-        
+
         for user_col in user_columns:
             user_col_lower = user_col.strip().lower()
             if user_col_lower in column_map:
                 matched_columns.append(column_map[user_col_lower])
             else:
                 invalid_columns.append(user_col)
-        
+
         return matched_columns, invalid_columns
-    
+
     if columns is None:
         df_clean = df_work.drop_duplicates()
     else:
         user_columns = [col.strip() if isinstance(col, str) else col for col in columns]
         columns_to_check, invalid_columns = match_columns(user_columns)
-        
+
         if invalid_columns:
             raise ValueError(f"Invalid columns: {invalid_columns}")
-        
+
         if not columns_to_check:
             df_clean = df_work.drop_duplicates()
         else:
             df_clean = df_work.drop_duplicates(subset=columns_to_check)
-    
+
     return df_clean
-
-

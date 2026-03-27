@@ -60,31 +60,7 @@ STYLES = """
     letter-spacing: 0.18em;
     margin-bottom: 0.5rem;
 }
-.hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-.hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: #475569;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 3px 10px;
-}
-.hero-badge-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #22c55e;
-    display: inline-block;
-}
+
 .section-title {
     font-family: 'DM Sans', sans-serif;
     font-size: 0.68rem;
@@ -119,30 +95,43 @@ STYLES = """
 section[data-testid="stSidebar"] .stMarkdown { margin-bottom: 0 !important; }
 section[data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
 
-/* ── Sidebar expanders ─────────────────────────── */
-section[data-testid="stSidebar"] details {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-}
-section[data-testid="stSidebar"] details summary {
-    font-size: 0.78rem !important;
-    font-weight: 700 !important;
-    color: #1e293b !important;
-    padding: 0.5rem 0 !important;
-    border-radius: 6px !important;
-}
-section[data-testid="stSidebar"] details summary:hover {
-    color: #6366f1 !important;
+/* ── Sidebar divider compact ─────────────────── */
+section[data-testid="stSidebar"] hr {
+    margin-top: 0.3rem !important;
+    margin-bottom: 0.3rem !important;
 }
 
 /* ── Sidebar checkboxes ────────────────────────── */
+section[data-testid="stSidebar"] .stCheckbox {
+    margin-bottom: -0.6rem !important;
+}
 section[data-testid="stSidebar"] .stCheckbox label {
-    font-size: 0.82rem !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.8rem !important;
     color: #475569 !important;
+    padding: 0.2rem 0 !important;
 }
 section[data-testid="stSidebar"] .stCheckbox label:hover { color: #1e293b !important; }
+
+/* ── Sidebar select/multiselect compact ────────── */
+section[data-testid="stSidebar"] .stSelectbox,
+section[data-testid="stSidebar"] .stMultiSelect {
+    margin-bottom: -0.4rem !important;
+}
+section[data-testid="stSidebar"] .stSelectbox label,
+section[data-testid="stSidebar"] .stMultiSelect label {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.72rem !important;
+    color: #94a3b8 !important;
+}
+section[data-testid="stSidebar"] .stNumberInput {
+    margin-bottom: -0.4rem !important;
+}
+section[data-testid="stSidebar"] .stNumberInput label {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.72rem !important;
+    color: #94a3b8 !important;
+}
 
 
 /* ── Pipeline strip ─────────────────────────────── */
@@ -186,6 +175,7 @@ section[data-testid="stSidebar"] .stCheckbox label:hover { color: #1e293b !impor
 }
 .status-box.rows::before { background: #6366f1; }
 .status-box.cols::before { background: #f59e0b; }
+.status-box.countries::before { background: #8b5cf6; }
 .status-icon { font-size: .72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: .35rem; }
 .status-val  { font-size: 1.75rem; font-weight: 700; line-height: 1; color: #1a1a2e; letter-spacing: -.02em; margin-bottom: .3rem; }
 .status-lbl  { font-size: .78rem; color: #64748b; font-weight: 500; }
@@ -231,6 +221,7 @@ section[data-testid="stSidebar"] .stCheckbox label:hover { color: #1e293b !impor
     }
     .status-box.rows::before { background: linear-gradient(90deg,#4f46e5,#6366f1); }
     .status-box.cols::before { background: linear-gradient(90deg,#d97706,#f59e0b); }
+    .status-box.countries::before { background: linear-gradient(90deg,#7c3aed,#8b5cf6); }
     .status-val { color: #f1f5f9; }
     .status-icon { color: #475569; }
     .status-lbl { color: #64748b; }
@@ -254,12 +245,94 @@ section[data-testid="stSidebar"] .stCheckbox label:hover { color: #1e293b !impor
     }
 
     /* Sidebar */
-    section[data-testid="stSidebar"] details summary { color: #e2e8f0 !important; }
-    section[data-testid="stSidebar"] details summary:hover { color: #818cf8 !important; }
     section[data-testid="stSidebar"] .stCheckbox label { color: #94a3b8 !important; }
     section[data-testid="stSidebar"] .stCheckbox label:hover { color: #e2e8f0 !important; }
+    section[data-testid="stSidebar"] .stSelectbox label,
+    section[data-testid="stSidebar"] .stMultiSelect label,
+    section[data-testid="stSidebar"] .stNumberInput label { color: #64748b !important; }
 
 
+}
+
+/* ── Sidebar app name ──────────────────────────── */
+.sidebar-app-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    text-align: left;
+    margin: 0 0 1rem 0;
+    padding: 0;
+}
+@media (prefers-color-scheme: dark) {
+    .sidebar-app-name { color: #f1f5f9; }
+}
+
+/* ── Tool selector buttons (sidebar) ───────────── */
+section[data-testid="stSidebar"] .stButton > button,
+section[data-testid="stSidebar"] .stButton > button[data-testid] {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    padding: 10px 14px !important;
+    border-radius: 10px !important;
+    transition: all 0.15s ease !important;
+    letter-spacing: 0.01em !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    margin-bottom: -0.5rem;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+section[data-testid="stSidebar"] .stButton > button p,
+section[data-testid="stSidebar"] .stButton > button span,
+section[data-testid="stSidebar"] .stButton > button div,
+section[data-testid="stSidebar"] .stButton > button * {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+section[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
+    background: transparent !important;
+    border: none !important;
+    color: #64748b !important;
+}
+section[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+    color: #4338ca !important;
+}
+section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border: none !important;
+    color: #4338ca !important;
+    font-weight: 600 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {
+    background: rgba(99, 102, 241, 0.18) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
+        background: transparent !important;
+        border: none !important;
+        color: #94a3b8 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
+        background: rgba(129, 140, 248, 0.1) !important;
+        color: #a5b4fc !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+        background: rgba(129, 140, 248, 0.15) !important;
+        border: none !important;
+        color: #a5b4fc !important;
+        font-weight: 600 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {
+        background: rgba(129, 140, 248, 0.22) !important;
+    }
 }
 
 #MainMenu { visibility: hidden; }
