@@ -26,8 +26,20 @@ def _read_uploaded_file(uf):
         except Exception:
             return None
 
+    # Detect UTF-16 BOM and try that encoding first
+    uf.seek(0)
+    bom = uf.read(2)
+    uf.seek(0)
+
+    encodings = list(config.CSV_ENCODINGS)
+    if bom in (b'\xff\xfe', b'\xfe\xff'):
+        # Move utf-16 to the front so it's tried before latin1
+        if 'utf-16' in encodings:
+            encodings.remove('utf-16')
+        encodings.insert(0, 'utf-16')
+
     # CSV — try multiple encoding / delimiter combos
-    for enc in config.CSV_ENCODINGS:
+    for enc in encodings:
         for sep in config.CSV_DELIMITERS:
             uf.seek(0)
             try:
@@ -58,27 +70,22 @@ def get_common_columns(uploaded_files):
         Column names common to every file, preserving the order they
         appear in the first file.
     """
-    column_sets = []
+    all_columns = []  # list of (ordered_cols, col_set) per file
     for uf in uploaded_files:
         df = _read_uploaded_file(uf)
         uf.seek(0)
         if df is not None:
-            column_sets.append(set(df.columns))
+            all_columns.append((list(df.columns), set(df.columns)))
 
-    if not column_sets:
+    if not all_columns:
         return []
 
-    common = column_sets[0]
-    for cs in column_sets[1:]:
+    common = all_columns[0][1]
+    for _, cs in all_columns[1:]:
         common = common & cs
 
     # Preserve the column order from the first file
-    first_df_cols = []
-    df_first = _read_uploaded_file(uploaded_files[0])
-    uploaded_files[0].seek(0)
-    if df_first is not None:
-        first_df_cols = [c for c in df_first.columns if c in common]
-    return first_df_cols
+    return [c for c in all_columns[0][0] if c in common]
 
 
 def merge_csv(file_path=None, uploaded_files=None, merge_column=None):
