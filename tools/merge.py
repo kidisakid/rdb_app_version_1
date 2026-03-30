@@ -5,7 +5,7 @@ Merge Data tool — combine multiple CSV/Excel files into one.
 import pandas as pd
 import streamlit as st
 
-from src.merge.merge_csv import merge_csv
+from src.merge.merge_csv import merge_csv, get_common_columns
 from helpers import render_download
 
 
@@ -93,6 +93,29 @@ def tool_merge_csv():
         unsafe_allow_html=True,
     )
 
+    # ── Common column selection ──────────────────────────────────────
+    st.markdown(
+        '<div class="section-divider">'
+        '<span class="section-divider-label">Merge Column</span>'
+        '<span class="section-divider-line"></span></div>',
+        unsafe_allow_html=True,
+    )
+
+    common_cols = get_common_columns(uploaded_files)
+
+    if not common_cols:
+        st.error(
+            "No common columns found across all uploaded files. "
+            "Please ensure the files share at least one column name."
+        )
+        return
+
+    merge_column = st.selectbox(
+        "Select a column common to all files to merge on",
+        options=common_cols,
+        key="merge_column_select",
+    )
+
     # ── Merge ────────────────────────────────────────────────────────
     merge_clicked = st.button("Merge Files", type="primary", use_container_width=False)
 
@@ -101,7 +124,9 @@ def tool_merge_csv():
         progress.progress(0.5, text="Merging files...")
 
         try:
-            result_df = merge_csv(uploaded_files=uploaded_files)
+            result_df = merge_csv(
+                uploaded_files=uploaded_files, merge_column=merge_column
+            )
             progress.progress(1.0, text="Done")
             st.session_state["merge_result_df"] = result_df
         except Exception as e:
