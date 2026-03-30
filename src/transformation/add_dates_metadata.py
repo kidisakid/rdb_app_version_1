@@ -71,10 +71,10 @@ def add_dates_metadata(file_path: Optional[str | Path] = None) -> pd.DataFrame:
             df_with_metadata[date_column], errors='coerce', dayfirst=True
         )
 
-        df_with_metadata['Year'] = df_with_metadata[date_column].dt.year
+        df_with_metadata['Year'] = df_with_metadata[date_column].dt.year.astype('Int64')
         df_with_metadata['Month'] = df_with_metadata[date_column].dt.strftime('%b')
-        df_with_metadata['Day'] = df_with_metadata[date_column].dt.day
-        df_with_metadata['Quarter'] = df_with_metadata[date_column].dt.quarter
+        df_with_metadata['Day'] = df_with_metadata[date_column].dt.day.astype('Int64')
+        df_with_metadata['Quarter'] = df_with_metadata[date_column].dt.quarter.astype('Int64')
 
         columns = list(df_with_metadata.columns)
         date_index = columns.index(date_column)

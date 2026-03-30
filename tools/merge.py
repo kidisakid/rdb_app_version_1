@@ -85,9 +85,11 @@ def tool_merge_csv():
 
     total_rows = manifest_df["Rows"].apply(pd.to_numeric, errors="coerce").sum()
     total_cols = manifest_df["Columns"].apply(pd.to_numeric, errors="coerce").max()
+    rows_display = f"{int(total_rows):,}" if pd.notna(total_rows) else "?"
+    cols_display = f"{int(total_cols):,}" if pd.notna(total_cols) else "?"
     st.markdown(
         f'<p style="font-family:DM Sans,sans-serif;font-size:0.82rem;color:#64748b;">'
-        f'When merged: {int(total_rows):,} total rows &middot; {int(total_cols):,} columns</p>',
+        f'When merged: {rows_display} total rows &middot; {cols_display} columns</p>',
         unsafe_allow_html=True,
     )
 
