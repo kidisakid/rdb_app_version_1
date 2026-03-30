@@ -13,14 +13,3 @@ TFIDF_STOP_WORDS = 'english'
 
 # Default output column name for clustering results
 DEFAULT_OUTPUT_COLUMN = 'Cluster_Topic'
-
-# K-Means configuration
-KMEANS_ALGORITHM = 'lloyd'
-
-# Text cleaning configuration
-REMOVE_PUNCTUATION = True
-REMOVE_NUMBERS = False
-MIN_TOKEN_LENGTH = 3
-
-# Custom stopwords (can be extended)
-CUSTOM_STOPWORDS = set()

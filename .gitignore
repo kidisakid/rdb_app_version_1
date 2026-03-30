@@ -35,3 +35,6 @@ dist/
 *.tmp
 tmp/
 temp/
+
+# Streamlit secrets
+.streamlit/secrets.toml

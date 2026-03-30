@@ -27,6 +27,7 @@ from styles import STYLES
 st.markdown(STYLES, unsafe_allow_html=True)
 
 from tools import tool_data_pipeline, tool_merge_csv
+from auth import is_authenticated, render_auth_page, render_sidebar_header
 
 
 # ── Tool selector ────────────────────────────────────────────────────
@@ -40,7 +41,7 @@ def _render_tool_selector():
     if "active_tool" not in st.session_state:
         st.session_state["active_tool"] = "pipeline"
 
-    st.sidebar.markdown('<p class="sidebar-app-name">RDB App</p>', unsafe_allow_html=True)
+    render_sidebar_header()
 
     for t in TOOLS:
         is_active = st.session_state["active_tool"] == t["id"]
@@ -61,6 +62,10 @@ def _render_tool_selector():
 # ── Main ─────────────────────────────────────────────────────────────
 
 def main():
+    if not is_authenticated():
+        render_auth_page()
+        return
+
     active = _render_tool_selector()
 
     if active == "pipeline":

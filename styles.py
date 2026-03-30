@@ -94,10 +94,20 @@ STYLES = """
 /* ── Sidebar spacing ───────────────────────────── */
 section[data-testid="stSidebar"] .stMarkdown { margin-bottom: 0 !important; }
 section[data-testid="stSidebar"] .element-container { margin-bottom: 0 !important; }
+section[data-testid="stSidebar"] .block-container { gap: 0 !important; }
+section[data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.25rem !important; }
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding-top: 1.5rem !important;
+}
+/* Collapse columns wrapper spacing */
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+section[data-testid="stSidebar"] [data-testid="column"] { padding: 0 !important; margin: 0 !important; }
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div { margin: 0 !important; padding: 0 !important; }
 
 /* ── Sidebar divider compact ─────────────────── */
 section[data-testid="stSidebar"] hr {
-    margin-top: 0.3rem !important;
+    margin-top: 0.75rem !important;
     margin-bottom: 0.3rem !important;
 }
 
@@ -254,19 +264,142 @@ section[data-testid="stSidebar"] .stNumberInput label {
 
 }
 
-/* ── Sidebar app name ──────────────────────────── */
+/* ── Sidebar header (title + username) ─────────── */
 .sidebar-app-name {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 1.25rem;
+    font-family: 'DM Serif Display', Georgia, serif !important;
+    font-size: 1.25rem !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.01em !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+}
+.sidebar-username {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
     font-weight: 400;
-    color: #0f172a;
-    letter-spacing: -0.01em;
-    text-align: left;
-    margin: 0 0 1rem 0;
+    margin: 0 !important;
     padding: 0;
 }
+
+/* ── Sidebar header container — tight layout ──────── */
+.st-key-sidebar_header {
+    margin: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 1.5rem !important;
+}
+.st-key-sidebar_header [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+}
+.st-key-sidebar_header .element-container {
+    margin: 0 !important;
+}
+
+/* Logout button wrapper — fixed to top-right of sidebar content */
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    position: relative !important;
+}
+.st-key-sidebar_header .st-key-logout_btn {
+    position: absolute !important;
+    top: 6rem !important;
+    right: 1.25rem !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+}
+
+/* ── Logout button — high specificity to override generic sidebar btn */
+section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button,
+section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button[data-testid],
+section[data-testid="stSidebar"] .st-key-sidebar_header button {
+    all: unset !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+    width: auto !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    transition: max-width 0.3s cubic-bezier(0.4,0,0.2,1),
+                width 0.3s cubic-bezier(0.4,0,0.2,1),
+                gap 0.3s cubic-bezier(0.4,0,0.2,1),
+                padding 0.3s cubic-bezier(0.4,0,0.2,1),
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* "Logout" text — hidden, slides in right of icon on hover */
+section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button p,
+section[data-testid="stSidebar"] .st-key-sidebar_header button p {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: max-width 0.3s cubic-bezier(0.4,0,0.2,1),
+                opacity 0.25s ease,
+                margin 0.3s ease !important;
+}
+
+/* Hover — button expands, icon moves left, text appears */
+section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button:hover,
+section[data-testid="stSidebar"] .st-key-sidebar_header button:hover {
+    max-width: 130px !important;
+    width: auto !important;
+    gap: 10px !important;
+    padding: 10px 14px !important;
+    justify-content: flex-start !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+    border-radius: 10px !important;
+}
+section[data-testid="stSidebar"] .st-key-sidebar_header button:hover p {
+    max-width: 80px !important;
+    opacity: 1 !important;
+    margin-left: 0 !important;
+    color: #ef4444 !important;
+}
+
+/* ── Light mode ───────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+    .sidebar-app-name { color: #0f172a !important; }
+    .sidebar-username { color: #94a3b8 !important; }
+    .st-key-sidebar_header button { color: #94a3b8 !important; }
+    .st-key-sidebar_header button:hover { color: #ef4444 !important; }
+    .st-key-sidebar_header button:hover p { color: #ef4444 !important; }
+}
+
+/* ── Dark mode ────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
-    .sidebar-app-name { color: #f1f5f9; }
+    .sidebar-app-name { color: #f1f5f9 !important; }
+    .sidebar-username { color: #64748b !important; }
+    .st-key-sidebar_header button { color: #64748b !important; }
+    .st-key-sidebar_header button:hover {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border-color: rgba(239, 68, 68, 0.25) !important;
+        color: #f87171 !important;
+        justify-content: flex-start !important;
+    }
+    .st-key-sidebar_header button:hover p { color: #f87171 !important; }
 }
 
 /* ── Tool selector buttons (sidebar) ───────────── */
@@ -281,15 +414,15 @@ section[data-testid="stSidebar"] .stButton > button[data-testid] {
     letter-spacing: 0.01em !important;
     text-align: left !important;
     justify-content: flex-start !important;
-    margin-bottom: -0.5rem;
+    margin-bottom: 0.15rem;
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
 }
-section[data-testid="stSidebar"] .stButton > button p,
-section[data-testid="stSidebar"] .stButton > button span,
-section[data-testid="stSidebar"] .stButton > button div,
-section[data-testid="stSidebar"] .stButton > button * {
+section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) p,
+section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) span,
+section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) div,
+section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) * {
     text-align: left !important;
     justify-content: flex-start !important;
     margin-left: 0 !important;
