@@ -478,7 +478,7 @@
                 <div class="module-card">
                     <span class="module-badge badge-merge">Merge</span>
                     <h4>CSV Merge</h4>
-                    <p>Combines multiple CSV files into one dataset, tagging each row with a Country Code extracted from the source filename.</p>
+                    <p>Combines multiple CSV/Excel files into one dataset using a user-selected common column, with automatic UTF-16 BOM detection.</p>
                 </div>
             </div>
 
@@ -549,7 +549,7 @@ sevengen-internshipweek4.2/
 │   │
 │   └── merge/                           # Data merging modules
 │       ├── __init__.py
-│       └── merge_csv.py                 # Multi-file CSV merge by country
+│       └── merge_csv.py                 # Multi-file CSV merge by common column
 │
 ├── data/
 │   ├── raw/                             # Default location for input files
@@ -609,7 +609,7 @@ sevengen-internshipweek4.2/
                 <h4>src/merge/</h4>
                 <p>Modules for combining multiple data files into a single dataset.</p>
                 <ul>
-                    <li><strong>merge_csv.py</strong> &mdash; Merges multiple CSV files with Country Code tagging from filenames</li>
+                    <li><strong>merge_csv.py</strong> &mdash; Merges multiple CSV/Excel files using a user-selected common column, with UTF-16 BOM detection</li>
                 </ul>
             </div>
 
@@ -711,8 +711,8 @@ sevengen-internshipweek4.2/
                 <tr>
                     <td><strong>CSV Merge</strong></td>
                     <td>Multiple uploaded CSV/Excel files</td>
-                    <td>Extract country code from filenames, concat all rows</td>
-                    <td>Single merged DataFrame + Country_Code column</td>
+                    <td>Detect common columns, user selects merge column, concat all rows, sort by selected column</td>
+                    <td>Single merged DataFrame sorted by chosen column</td>
                 </tr>
                 <tr>
                     <td><strong>CSV Handler</strong></td>
@@ -1558,71 +1558,76 @@ sevengen-internshipweek4.2/
             <hr class="divider">
 
             <h3>Purpose</h3>
-            <p>Combines multiple CSV files into a single consolidated dataset. Each file is tagged with a Country Code derived from the first two characters of its filename, making it ideal for consolidating international media coverage data.</p>
+            <p>Combines multiple CSV or Excel files into a single consolidated dataset using a user-selected common column. Instead of relying on filename prefixes, you choose which column to merge on &mdash; the module finds columns shared across all files, lets you pick one, then concatenates and sorts the result by that column.</p>
 
             <h3>When to Use</h3>
             <ul>
-                <li>You have separate media coverage files per country (e.g., <code>PH_coverage.csv</code>, <code>US_coverage.csv</code>)</li>
-                <li>You need a unified dataset for cross-country analysis</li>
-                <li>You want automatic source identification via the Country Code column</li>
+                <li>You have separate media coverage files from different sources, countries, or time periods</li>
+                <li>You need a unified dataset for cross-cutting analysis</li>
+                <li>Your files share at least one common column (e.g., <code>Date</code>, <code>Country</code>, <code>Source</code>) to organize the merge</li>
             </ul>
 
             <h3>Workflow Diagram</h3>
             <div class="workflow-chart">
-                <svg width="100%" height="560" style="max-width: 580px; margin: 0 auto; display: block;">
+                <svg width="100%" height="640" style="max-width: 580px; margin: 0 auto; display: block;">
                     <rect x="160" y="10" width="260" height="44" rx="4" fill="#37352f"/>
-                    <text x="290" y="30" text-anchor="middle" fill="white" font-size="12" font-weight="500">Input: Multiple CSV Files</text>
+                    <text x="290" y="30" text-anchor="middle" fill="white" font-size="12" font-weight="500">Input: Multiple CSV/Excel Files</text>
                     <text x="290" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="500">(2+ uploaded files)</text>
 
                     <line x1="290" y1="54" x2="290" y2="79" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,84 287,77 293,77" fill="#37352f"/>
 
-                    <!-- Loop over files -->
-                    <rect x="120" y="86" width="340" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="113" text-anchor="middle" fill="#37352f" font-size="14">For each uploaded file:</text>
+                    <!-- Detect common columns -->
+                    <rect x="160" y="86" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="108" text-anchor="middle" fill="#37352f" font-size="13">Detect common columns</text>
+                    <text x="290" y="123" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(intersection across all files)</text>
 
                     <line x1="290" y1="130" x2="290" y2="155" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,160 287,153 293,153" fill="#37352f"/>
 
+                    <!-- User selects column -->
                     <rect x="160" y="162" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="185" text-anchor="middle" fill="#37352f" font-size="13">Extract country code from filename</text>
-                    <text x="290" y="199" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(first 2 chars, uppercased)</text>
+                    <text x="290" y="185" text-anchor="middle" fill="#37352f" font-size="13">User selects merge column</text>
+                    <text x="290" y="199" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(dropdown of common columns)</text>
 
                     <line x1="290" y1="206" x2="290" y2="231" stroke="#37352f" stroke-width="1.5"/>
-                    <polygon points="290,236 267,229 293,229" fill="#37352f"/>
+                    <polygon points="290,236 287,229 293,229" fill="#37352f"/>
 
-                    <rect x="160" y="238" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="260" text-anchor="middle" fill="#37352f" font-size="12">Read file (try encodings/delimiters)</text>
-                    <text x="290" y="275" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(incl. UTF-16 support)</text>
+                    <!-- Loop over files -->
+                    <rect x="120" y="238" width="340" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="290" y="265" text-anchor="middle" fill="#37352f" font-size="14">For each uploaded file:</text>
 
                     <line x1="290" y1="282" x2="290" y2="307" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,312 287,305 293,305" fill="#37352f"/>
 
                     <rect x="160" y="314" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="341" text-anchor="middle" fill="#37352f" font-size="13">Add Country_Code column</text>
+                    <text x="290" y="336" text-anchor="middle" fill="#37352f" font-size="12">Read file (smart encoding detection)</text>
+                    <text x="290" y="351" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">(UTF-16 BOM auto-detected)</text>
 
                     <line x1="290" y1="358" x2="290" y2="383" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,388 287,381 293,381" fill="#37352f"/>
 
-                    <!-- Loop bracket -->
-                    <line x1="135" y1="86" x2="135" y2="358" stroke="rgba(55,53,47,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
-                    <text x="130" y="225" text-anchor="middle" fill="rgba(55,53,47,0.35)" font-size="11" font-weight="500" transform="rotate(-90, 130, 225)">Repeat per file</text>
-
-                    <!-- Concat -->
                     <rect x="160" y="390" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="417" text-anchor="middle" fill="#37352f" font-size="13">Concatenate all DataFrames</text>
+                    <text x="290" y="417" text-anchor="middle" fill="#37352f" font-size="13">Drop rows with null merge column</text>
 
                     <line x1="290" y1="434" x2="290" y2="459" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,464 287,457 293,457" fill="#37352f"/>
 
+                    <!-- Loop bracket -->
+                    <line x1="135" y1="238" x2="135" y2="434" stroke="rgba(55,53,47,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+                    <text x="130" y="340" text-anchor="middle" fill="rgba(55,53,47,0.35)" font-size="11" font-weight="500" transform="rotate(-90, 130, 340)">Repeat per file</text>
+
+                    <!-- Concat -->
                     <rect x="160" y="466" width="260" height="44" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.5"/>
-                    <text x="290" y="493" text-anchor="middle" fill="#37352f" font-size="13">Return merged DataFrame</text>
+                    <text x="290" y="488" text-anchor="middle" fill="#37352f" font-size="13">Concatenate all DataFrames</text>
+                    <text x="290" y="503" text-anchor="middle" fill="rgba(55,53,47,0.5)" font-size="11">&amp; sort by merge column</text>
 
                     <line x1="290" y1="510" x2="290" y2="529" stroke="#37352f" stroke-width="1.5"/>
                     <polygon points="290,534 287,527 293,527" fill="#37352f"/>
 
                     <rect x="160" y="536" width="260" height="44" rx="4" fill="#37352f"/>
-                    <text x="290" y="563" text-anchor="middle" fill="white" font-size="14" font-weight="500">Output: Unified Dataset</text>
+                    <text x="290" y="558" text-anchor="middle" fill="white" font-size="12" font-weight="500">Output: Unified Dataset</text>
+                    <text x="290" y="573" text-anchor="middle" fill="white" font-size="12" font-weight="500">(sorted by selected column)</text>
                 </svg>
             </div>
 
@@ -1631,43 +1636,37 @@ sevengen-internshipweek4.2/
                 <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
                 <tr><td><code>file_path</code></td><td>str</td><td>Config default</td><td>Path for single-file mode</td></tr>
                 <tr><td><code>uploaded_files</code></td><td>list[UploadedFile]</td><td>None</td><td>Streamlit uploaded file objects</td></tr>
+                <tr><td><code>merge_column</code></td><td>str</td><td>None</td><td>Common column to filter nulls and sort the result by</td></tr>
             </table>
 
-            <h3>File Naming Convention</h3>
-            <div class="callout warning">
-                <div class="callout-label">Important</div>
-                <p>The Country Code comes from the <strong>first two characters</strong> of the filename. Name your files with ISO country codes as prefixes for accurate tagging:</p>
+            <h3>How Column Selection Works</h3>
+            <div class="callout">
+                <p>When you upload files, the module reads the column headers from every file and finds the <strong>intersection</strong> &mdash; columns that exist in ALL files. These are presented in a dropdown for you to choose from. If no common columns are found, an error is shown and merging is blocked.</p>
             </div>
-            <table>
-                <tr><th>Filename</th><th>Country Code</th></tr>
-                <tr><td><code>PH_media_coverage.csv</code></td><td>PH</td></tr>
-                <tr><td><code>us_news_data.csv</code></td><td>US</td></tr>
-                <tr><td><code>fr-articles-2025.csv</code></td><td>FR</td></tr>
-                <tr><td><code>JP_headlines.csv</code></td><td>JP</td></tr>
-            </table>
 
             <h3>Example Output</h3>
             <div class="example-box">
-                <h4>Merged Result</h4>
+                <h4>Merged Result (merge column: Date)</h4>
                 <table>
-                    <tr><th>Country_Code</th><th>Title</th><th>Source</th></tr>
-                    <tr><td>PH</td><td>New Policy</td><td>Daily News</td></tr>
-                    <tr><td>PH</td><td>Budget Update</td><td>Tribune</td></tr>
-                    <tr><td>US</td><td>Market Rally</td><td>NY Times</td></tr>
-                    <tr><td>US</td><td>Trade Deal</td><td>WSJ</td></tr>
+                    <tr><th>Date</th><th>Headline</th><th>Source</th><th>Country</th></tr>
+                    <tr><td>01-Jan-2026</td><td>New Policy</td><td>Daily News</td><td>Indonesia</td></tr>
+                    <tr><td>01-Jan-2026</td><td>Trade Deal</td><td>Star News</td><td>Malaysia</td></tr>
+                    <tr><td>02-Jan-2026</td><td>Market Update</td><td>Tribune</td><td>Indonesia</td></tr>
+                    <tr><td>03-Jan-2026</td><td>Budget Approved</td><td>Malay Mail</td><td>Malaysia</td></tr>
                 </table>
             </div>
 
             <h3>Requirements</h3>
             <ul>
-                <li><strong>Minimum 2 files</strong> &mdash; The merge step is only available when you upload 2 or more files.</li>
+                <li><strong>Minimum 2 files</strong> &mdash; The merge tool is only available when you upload 2 or more files.</li>
+                <li><strong>At least 1 common column</strong> &mdash; Files must share at least one column name for the merge column selector to appear.</li>
                 <li><strong>Files can have different columns</strong> &mdash; Missing columns are filled with empty values.</li>
-                <li><strong>Supports UTF-16</strong> &mdash; In addition to standard encodings, this module handles UTF-16 tab-delimited files.</li>
+                <li><strong>Supports UTF-16</strong> &mdash; UTF-16 files with BOM are automatically detected and read correctly, alongside standard encodings.</li>
             </ul>
 
             <div class="callout tip">
                 <div class="callout-label">Tip for Media Analysts</div>
-                <p>Run the merge step <strong>before</strong> other pipeline steps. This way, header normalization, deduplication, and translation all operate on the complete combined dataset rather than individual files.</p>
+                <p>Choose a meaningful merge column like <strong>Date</strong>, <strong>Country</strong>, or <strong>Source</strong> to organize your combined dataset. Run the merge step <strong>before</strong> other pipeline steps so that header normalization, deduplication, and translation all operate on the complete combined dataset.</p>
             </div>
 
             <div class="navigation">
@@ -1756,7 +1755,7 @@ pip install -r requirements.txt</pre>
             <div class="callout tip">
                 <div class="callout-label">Best Practice Pipeline</div>
                 <ol>
-                    <li><strong>Merge CSV Files</strong> &mdash; If you have multiple files, merge them first to create a unified dataset.</li>
+                    <li><strong>Merge CSV Files</strong> &mdash; If you have multiple files, upload them and select a common column (e.g., Date, Country) to merge into a unified dataset.</li>
                     <li><strong>Normalize Headers</strong> &mdash; Ensures consistent column names for all subsequent steps.</li>
                     <li><strong>Remove Duplicates</strong> &mdash; Eliminates redundant entries before enrichment.</li>
                     <li><strong>Add Date Metadata</strong> &mdash; Enriches your data with time components for trend analysis.</li>
