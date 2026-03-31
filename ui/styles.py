@@ -131,14 +131,14 @@ section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
     padding-top: 1.5rem !important;
 }
 /* Collapse columns wrapper spacing */
-section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] { gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; margin: 0 !important; padding: 0 !important; }
 section[data-testid="stSidebar"] [data-testid="column"] { padding: 0 !important; margin: 0 !important; }
 section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div { margin: 0 !important; padding: 0 !important; }
 
 /* ── Sidebar divider compact ─────────────────── */
 section[data-testid="stSidebar"] hr {
     margin-top: 0.75rem !important;
-    margin-bottom: 0.3rem !important;
+    margin-bottom: 1.5rem !important;
 }
 
 /* ── Sidebar checkboxes ────────────────────────── */
@@ -476,6 +476,12 @@ section[data-testid="stSidebar"] .stNumberInput label {
     }
 }
 
+/* ── User Control — centered layout ────────────── */
+.block-container:has(.uc-page-wrap) {
+    max-width: 720px !important;
+    margin: 0 auto !important;
+}
+
 /* ── User Control panel ─────────────────────────── */
 .uc-header {
     font-family: 'DM Sans', sans-serif;
@@ -489,7 +495,7 @@ section[data-testid="stSidebar"] .stNumberInput label {
 .uc-divider {
     height: 1px;
     background: #e2e8f0;
-    margin-bottom: 0.1rem;
+    margin: 0.25rem 0;
 }
 .uc-username {
     font-family: 'DM Sans', sans-serif;
@@ -584,15 +590,18 @@ section[data-testid="stSidebar"] .stNumberInput label {
     line-height: 1.4;
 }
 
-/* Force user list outer columns to NEVER stack */
-@media (max-width: 768px) {
-    [data-testid="stHorizontalBlock"]:has(.uc-row-info) {
-        flex-wrap: nowrap !important;
-    }
-    [data-testid="stHorizontalBlock"]:has(.uc-row-info) > [data-testid="column"] {
-        min-width: 0 !important;
-        flex: 1 1 auto !important;
-    }
+/* User list action buttons — inline row */
+[class*="st-key-uc_actions_"] [data-testid="stVerticalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+    align-items: center !important;
+}
+[class*="st-key-uc_actions_"] [data-testid="stVerticalBlock"] > div {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
 }
 
 /* Delete button — red icon */
@@ -641,11 +650,16 @@ section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
 .st-key-sidebar_header .st-key-logout_btn {
     position: absolute !important;
     top: 6rem !important;
-    right: 1.25rem !important;
-    width: auto !important;
+    right: 0.3rem !important;
+    width: 36px !important;
+    height: 36px !important;
     margin: 0 !important;
     padding: 0 !important;
-    
+    overflow: visible !important;
+}
+.st-key-sidebar_header .st-key-logout_btn .stButton {
+    width: 36px !important;
+    height: 36px !important;
 }
 
 /* ── Logout button — high specificity to override generic sidebar btn */
@@ -656,13 +670,14 @@ section[data-testid="stSidebar"] .st-key-sidebar_header button {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    justify-content: flex-end !important;
+    justify-content: center !important;
     gap: 0 !important;
-    width: auto !important;
+    width: 36px !important;
     height: 36px !important;
     min-height: 36px !important;
     min-width: 36px !important;
     max-width: 36px !important;
+    padding: 0 !important;
     border-radius: 8px !important;
     background: transparent !important;
     border: 1px solid transparent !important;
@@ -681,39 +696,31 @@ section[data-testid="stSidebar"] .st-key-sidebar_header button {
     box-sizing: border-box !important;
 }
 
-/* "Logout" text — hidden, slides in right of icon on hover */
+/* "Logout" text — completely hidden */
 section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button p,
 section[data-testid="stSidebar"] .st-key-sidebar_header button p {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.75rem !important;
-    font-weight: 500 !important;
-    max-width: 0 !important;
-    overflow: hidden !important;
-    opacity: 0 !important;
+    display: none !important;
+}
+/* Center the icon span */
+section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button span,
+section[data-testid="stSidebar"] .st-key-sidebar_header button span {
     margin: 0 !important;
     padding: 0 !important;
-    transition: max-width 0.3s cubic-bezier(0.4,0,0.2,1),
-                opacity 0.25s ease,
-                margin 0.3s ease !important;
+    font-size: 1.4rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Hover — button expands, icon moves left, text appears */
+/* Hover — icon color change only */
 section[data-testid="stSidebar"] .st-key-sidebar_header .stButton > button:hover,
 section[data-testid="stSidebar"] .st-key-sidebar_header button:hover {
-    max-width: 130px !important;
-    width: auto !important;
-    gap: 10px !important;
-    padding: 10px 14px !important;
-    justify-content: flex-start !important;
-    background: rgba(239, 68, 68, 0.08) !important;
-    border-color: rgba(239, 68, 68, 0.2) !important;
+    background: transparent !important;
+    border-color: transparent !important;
     color: #ef4444 !important;
-    border-radius: 10px !important;
 }
 section[data-testid="stSidebar"] .st-key-sidebar_header button:hover p {
-    max-width: 80px !important;
-    opacity: 1 !important;
-    margin-left: 0 !important;
+    display: none !important;
     color: #ef4444 !important;
 }
 
@@ -757,10 +764,10 @@ section[data-testid="stSidebar"] .stButton > button[data-testid] {
     align-items: center !important;
     gap: 10px !important;
 }
-section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) p,
-section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) span,
-section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) div,
-section[data-testid="stSidebar"] .stButton > button:not([key="logout_btn"]) * {
+section[data-testid="stSidebar"] .stButton:not(.st-key-logout_btn) > button p,
+section[data-testid="stSidebar"] .stButton:not(.st-key-logout_btn) > button span,
+section[data-testid="stSidebar"] .stButton:not(.st-key-logout_btn) > button div,
+section[data-testid="stSidebar"] .stButton:not(.st-key-logout_btn) > button * {
     text-align: left !important;
     justify-content: flex-start !important;
     margin-left: 0 !important;
@@ -905,6 +912,7 @@ header[data-testid="stHeader"] { background: transparent !important; box-shadow:
         flex: 1 1 100% !important;
     }
 
+
     /* Auth page — expand center form column to full width */
     .auth-outer-col [data-testid="column"]:first-child,
     .auth-outer-col [data-testid="column"]:last-child {
@@ -979,6 +987,25 @@ header[data-testid="stHeader"] { background: transparent !important; box-shadow:
     .uc-username { font-size: 0.72rem !important; }
     .uc-handle   { display: none !important; }
     .role-badge  { font-size: 0.52rem !important; padding: 1px 4px !important; }
+}
+
+/* ── Pipeline sidebar — options spacing ─────────── */
+section[data-testid="stSidebar"] .stNumberInput {
+    margin-bottom: 0.6rem !important;
+}
+section[data-testid="stSidebar"] .stSelectbox,
+section[data-testid="stSidebar"] .stMultiSelect {
+    margin-bottom: 0.6rem !important;
+}
+
+/* ── Pipeline sidebar — checkbox spacing ───────── */
+section[data-testid="stSidebar"] .stCheckbox {
+    margin-bottom: 0.2rem !important;
+}
+section[data-testid="stSidebar"] .stCheckbox label {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.82rem !important;
+    font-weight: 400 !important;
 }
 </style>
 """

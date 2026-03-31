@@ -111,7 +111,7 @@ def render_pipeline_sidebar(col_names: list) -> tuple:
         st.sidebar.markdown(
             f'<p style="font-family:DM Sans,sans-serif;font-size:0.68rem;font-weight:600;'
             f'color:{color};text-transform:uppercase;letter-spacing:0.1em;'
-            f'margin:0.75rem 0 0.25rem 0;padding:0;">{group_name}</p>',
+            f'margin:1rem 0 0.65rem 0;padding:0;">{group_name}</p>',
             unsafe_allow_html=True,
         )
 
@@ -171,7 +171,7 @@ def render_pipeline_sidebar(col_names: list) -> tuple:
         st.sidebar.markdown(
             '<p style="font-family:DM Sans,sans-serif;font-size:0.68rem;font-weight:600;'
             'color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;'
-            'margin:0 0 0.4rem 0;padding:0;">Options</p>',
+            'margin:0 0 1rem 0;padding:0;">Options</p>',
             unsafe_allow_html=True,
         )
 
@@ -204,7 +204,7 @@ def render_pipeline_sidebar(col_names: list) -> tuple:
             key="trans_cols",
             placeholder="Select columns...",
         )
-        col1, col2 = st.sidebar.columns(2, gap="small")
+        col1, col2 = st.sidebar.columns(2, gap="medium")
         target_lang = col1.text_input("Target", value="en", key="target_lang")
         source_lang = col2.text_input("Source", value="auto", key="source_lang")
 
@@ -215,14 +215,15 @@ def render_pipeline_sidebar(col_names: list) -> tuple:
             key="cluster_text_col",
             placeholder="Select column...",
         )
-        col1, col2 = st.sidebar.columns(2, gap="small")
+        col1, col2 = st.sidebar.columns(2, gap="medium")
         cluster_n = col1.number_input(
             "Clusters", min_value=2, max_value=20, value=5, key="cluster_n"
         )
         cluster_n_init = col2.number_input(
             "K-Means inits", min_value=1, max_value=20, value=10, key="cluster_n_init"
         )
-        col3, col4 = st.sidebar.columns(2, gap="small")
+        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+        col3, col4 = st.sidebar.columns(2, gap="medium")
         cluster_max_df = col3.number_input(
             "Max DF", min_value=0.1, max_value=1.0, value=0.95, step=0.05, key="cluster_max_df"
         )
@@ -669,7 +670,7 @@ def tool_data_pipeline():
         '<span class="section-divider-line"></span></div>',
         unsafe_allow_html=True,
     )
-    c1, c2 = st.columns(2, gap="medium")
+    c1, c2 = st.columns(2, gap="small")
     with c1:
         st.markdown(f"""
         <div class="status-box rows">
@@ -764,7 +765,7 @@ def tool_data_pipeline():
             unsafe_allow_html=True,
         )
 
-        r1, r2 = st.columns(2, gap="medium")
+        r1, r2 = st.columns(2, gap="small")
         with r1:
             st.markdown(f"""
             <div class="status-box rows">

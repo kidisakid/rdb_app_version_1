@@ -18,6 +18,7 @@ _BADGE = {
 
 
 def tool_user_control():
+    st.markdown('<div class="uc-page-wrap"></div>', unsafe_allow_html=True)
     st.markdown("""
     <div class="page-hero">
         <div class="hero-eyebrow">Admin Panel</div>
@@ -47,46 +48,33 @@ def tool_user_control():
     if not users:
         st.info("No users found or could not connect to database.")
     else:
-        h_name, h_role, h_action, h_delete = st.columns([5, 2, 1, 1])
-        h_name.markdown('<div class="uc-header">User</div>', unsafe_allow_html=True)
-        h_role.markdown('<div class="uc-header">Role</div>', unsafe_allow_html=True)
-        st.markdown('<div class="uc-divider"></div>', unsafe_allow_html=True)
-
         for user in users:
             uname    = user["username"]
             display  = user["display_name"]
             role     = user["role"]
             is_self  = uname == current_user
 
-            # Protected: super_admin rows can never be acted on
-            # Admins and super_admins can act on everyone else (except themselves)
             can_act = (
                 not is_self
                 and role != "super_admin"
                 and current_role in ("admin", "super_admin")
             )
 
-            col_name, col_role, col_action, col_delete = st.columns(
-                [5, 2, 1, 1], vertical_alignment="center"
+            badge_cls, badge_label = _BADGE.get(role, ("role-user", role.capitalize()))
+            you = "&thinsp;<span class='uc-you'>you</span>" if is_self else ""
+
+            st.markdown(
+                f'<div class="uc-row-info">'
+                f'<span class="uc-username">{display}{you}</span>'
+                f'<span class="uc-handle"> @{uname}</span>'
+                f'&ensp;<span class="role-badge {badge_cls}">{badge_label}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
             )
 
-            with col_name:
-                you = "&thinsp;<span class='uc-you'>you</span>" if is_self else ""
-                st.markdown(
-                    f'<span class="uc-username">{display}{you}</span>'
-                    f'<span class="uc-handle"> @{uname}</span>',
-                    unsafe_allow_html=True,
-                )
-
-            with col_role:
-                badge_cls, badge_label = _BADGE.get(role, ("role-user", role.capitalize()))
-                st.markdown(
-                    f'<span class="role-badge {badge_cls}">{badge_label}</span>',
-                    unsafe_allow_html=True,
-                )
-
-            with col_action:
-                if can_act:
+            if can_act:
+                action_container = st.container(key=f"uc_actions_{uname}")
+                with action_container:
                     if role == "user":
                         if st.button(
                             "",
@@ -107,9 +95,6 @@ def tool_user_control():
                             ok, msg = update_user_role(uname, "user")
                             st.toast(msg, icon="✅" if ok else "❌")
                             st.rerun()
-
-            with col_delete:
-                if can_act:
                     if st.button(
                         "",
                         key=f"delete_{uname}",
@@ -119,6 +104,8 @@ def tool_user_control():
                         ok, msg = delete_user(uname)
                         st.toast(msg, icon="✅" if ok else "❌")
                         st.rerun()
+
+            st.markdown('<div class="uc-divider"></div>', unsafe_allow_html=True)
 
     # ── Add new user ─────────────────────────────────────────────────
     st.markdown(
