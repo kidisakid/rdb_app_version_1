@@ -60,6 +60,36 @@ STYLES = """
     letter-spacing: 0.18em;
     margin-bottom: 0.5rem;
 }
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.9rem;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: #475569;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 0.01em;
+}
+.hero-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: inline-block;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
 
 .section-title {
     font-family: 'DM Sans', sans-serif;
@@ -214,6 +244,9 @@ section[data-testid="stSidebar"] .stNumberInput label {
         border-color: #2d3158;
         color: #94a3b8;
     }
+    .hero-badge-dot {
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.12);
+    }
 
     /* Section dividers */
     .section-divider-label { color: #475569; }
@@ -264,10 +297,116 @@ section[data-testid="stSidebar"] .stNumberInput label {
 
 }
 
+/* ── Auth page ──────────────────────────────────── */
+.auth-card {
+    text-align: center;
+    padding: 2.75rem 0 1.75rem;
+}
+.auth-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    margin: 0 auto 1rem;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.auth-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.5rem;
+}
+.auth-title {
+    font-family: 'DM Serif Display', Georgia, serif !important;
+    font-size: 3.2rem !important;
+    font-weight: 400 !important;
+    color: #0f172a;
+    letter-spacing: -0.02em !important;
+    margin: 0 0 0.4rem !important;
+    line-height: 1.1 !important;
+}
+.auth-subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0 0 0;
+}
+
+/* ── Auth tabs — segmented control ─────────────── */
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab-list"] {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 4px;
+    gap: 2px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.25rem;
+}
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab"] {
+    border-radius: 9px;
+    padding: 8px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #64748b;
+    background: transparent;
+    flex: 1;
+    justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab"]:hover {
+    color: #1e293b;
+}
+[class*="st-key-auth_tabs_wrapper"] .stTabs [aria-selected="true"] {
+    background: #ffffff;
+    color: #1e293b;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab-highlight"],
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab-border"] {
+    display: none !important;
+}
+[class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab-panel"] {
+    padding: 1.25rem 0 0 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .auth-title    { color: #f1f5f9; }
+    .auth-subtitle { color: #475569; }
+    .auth-eyebrow  { color: #818cf8; }
+    .auth-logo     { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45); }
+    [class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab-list"] {
+        background: rgba(15, 17, 23, 0.8);
+        border-color: #1e2235;
+    }
+    [class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab"] {
+        color: #475569;
+    }
+    [class*="st-key-auth_tabs_wrapper"] .stTabs [data-baseweb="tab"]:hover {
+        color: #94a3b8;
+    }
+    [class*="st-key-auth_tabs_wrapper"] .stTabs [aria-selected="true"] {
+        background: #1e2235;
+        color: #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+}
+
 /* ── Sidebar header (title + username) ─────────── */
 .sidebar-app-name {
     font-family: 'DM Serif Display', Georgia, serif !important;
-    font-size: 1.25rem !important;
+    font-size: 1.5rem !important;
     font-weight: 400 !important;
     letter-spacing: -0.01em !important;
     text-align: left !important;
@@ -277,10 +416,209 @@ section[data-testid="stSidebar"] .stNumberInput label {
 }
 .sidebar-username {
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     font-weight: 400;
     margin: 0 !important;
+    margin-top: 0.25rem !important;
     padding: 0;
+}
+.sidebar-user-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 !important;
+    padding: 0;
+}
+
+/* ── Role badges ────────────────────────────────── */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 20px;
+    line-height: 1.4;
+}
+.role-super {
+    background: rgba(245, 158, 11, 0.12);
+    color: #92400e;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.role-admin {
+    background: rgba(99, 102, 241, 0.12);
+    color: #4338ca;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+.role-user {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}
+@media (prefers-color-scheme: dark) {
+    .role-super {
+        background: rgba(251, 191, 36, 0.12);
+        color: #fbbf24;
+        border-color: rgba(251, 191, 36, 0.25);
+    }
+    .role-admin {
+        background: rgba(129, 140, 248, 0.15);
+        color: #a5b4fc;
+        border-color: rgba(129, 140, 248, 0.3);
+    }
+    .role-user {
+        background: rgba(148, 163, 184, 0.1);
+        color: #94a3b8;
+        border-color: rgba(148, 163, 184, 0.2);
+    }
+}
+
+/* ── User Control panel ─────────────────────────── */
+.uc-header {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    padding-bottom: 0.35rem;
+}
+.uc-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin-bottom: 0.1rem;
+}
+.uc-username {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+.uc-handle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 400;
+}
+.uc-you {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 400;
+    color: #94a3b8;
+    background: rgba(148,163,184,0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 4px;
+}
+
+/* ── Promote button — green ─────────────────────── */
+[class*="st-key-promote_"] button {
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.06) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    border-radius: 6px !important;
+    min-width: 36px !important;
+}
+[class*="st-key-promote_"] button:hover {
+    background: rgba(16, 185, 129, 0.14) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+/* ── Demote button — amber ──────────────────────── */
+[class*="st-key-demote_"] button {
+    color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.06) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+    border-radius: 6px !important;
+    min-width: 36px !important;
+}
+[class*="st-key-demote_"] button:hover {
+    background: rgba(245, 158, 11, 0.14) !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    [class*="st-key-promote_"] button {
+        color: #34d399 !important;
+        background: rgba(16, 185, 129, 0.08) !important;
+        border-color: rgba(16, 185, 129, 0.25) !important;
+    }
+    [class*="st-key-promote_"] button:hover {
+        background: rgba(16, 185, 129, 0.18) !important;
+        border-color: rgba(16, 185, 129, 0.45) !important;
+    }
+    [class*="st-key-demote_"] button {
+        color: #fbbf24 !important;
+        background: rgba(245, 158, 11, 0.08) !important;
+        border-color: rgba(245, 158, 11, 0.25) !important;
+    }
+    [class*="st-key-demote_"] button:hover {
+        background: rgba(245, 158, 11, 0.18) !important;
+        border-color: rgba(245, 158, 11, 0.45) !important;
+    }
+}
+
+/* Compact row spacing in user list */
+.st-key-sidebar_header ~ div [data-testid="stHorizontalBlock"],
+[data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"]:has(.uc-username) {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* ── User Control table header row ─────────────── */
+.uc-table-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 0.35rem 0;
+}
+.uc-row-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 0.2rem 0;
+    line-height: 1.4;
+}
+
+/* Force user list outer columns to NEVER stack */
+@media (max-width: 768px) {
+    [data-testid="stHorizontalBlock"]:has(.uc-row-info) {
+        flex-wrap: nowrap !important;
+    }
+    [data-testid="stHorizontalBlock"]:has(.uc-row-info) > [data-testid="column"] {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+}
+
+/* Delete button — red icon */
+[data-testid*="delete_"] button,
+[class*="st-key-delete_"] button {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.06) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    border-radius: 6px !important;
+}
+[data-testid*="delete_"] button:hover,
+[class*="st-key-delete_"] button:hover {
+    background: rgba(239, 68, 68, 0.14) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+@media (prefers-color-scheme: dark) {
+    .uc-username { color: #e2e8f0; }
+    .uc-handle   { color: #475569; }
+    .uc-divider  { background: #1e2235; }
+    .uc-you      { background: rgba(148,163,184,0.08); }
+    [data-testid*="delete_"] button,
+    [class*="st-key-delete_"] button {
+        color: #f87171 !important;
+        background: rgba(239, 68, 68, 0.08) !important;
+        border-color: rgba(239, 68, 68, 0.25) !important;
+    }
 }
 
 /* ── Sidebar header container — tight layout ──────── */
@@ -471,5 +809,176 @@ section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
 header[data-testid="stHeader"] { background: transparent !important; box-shadow: none !important; }
+[data-testid="InputInstructions"] { display: none !important; }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 1024px) ──────────────────────────── */
+@media (max-width: 1024px) {
+    .block-container {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+    .page-hero {
+        padding: 1.4rem 1.5rem 1.2rem !important;
+    }
+    .main-header {
+        font-size: 1.9rem !important;
+    }
+    .status-val {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ── Mobile (≤ 768px) ───────────────────────────── */
+@media (max-width: 768px) {
+    /* Layout */
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 1rem !important;
+    }
+
+    /* Hero */
+    .page-hero {
+        padding: 1.2rem 1.25rem 1rem !important;
+        border-radius: 12px !important;
+        margin-bottom: 1.25rem !important;
+    }
+    .main-header {
+        font-size: 1.6rem !important;
+        letter-spacing: -0.01em !important;
+    }
+    .main-subtitle {
+        font-size: 0.82rem !important;
+    }
+    .hero-eyebrow {
+        font-size: 0.6rem !important;
+    }
+    .hero-actions {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin-top: 0.75rem !important;
+    }
+
+    /* Section dividers */
+    .section-divider {
+        margin: 1rem 0 0.6rem !important;
+    }
+
+    /* Pipeline strip */
+    .pipeline-strip {
+        padding: 8px 12px !important;
+        gap: 4px !important;
+        border-radius: 10px !important;
+    }
+    .pipeline-chip {
+        font-size: 0.68rem !important;
+        padding: 2px 8px !important;
+    }
+
+    /* File uploader */
+    [data-testid="stFileUploader"] section {
+        padding: 1.75rem 1.25rem !important;
+    }
+
+    /* Metric cards */
+    .status-box {
+        padding: 0.9rem 1rem 0.85rem !important;
+        border-radius: 8px !important;
+    }
+    .status-val {
+        font-size: 1.4rem !important;
+    }
+    .status-lbl {
+        font-size: 0.72rem !important;
+    }
+
+    /* Stack Streamlit columns vertically (general) */
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+    }
+    [data-testid="stHorizontalBlock"] > [data-testid="column"] {
+        min-width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    /* Auth page — expand center form column to full width */
+    .auth-outer-col [data-testid="column"]:first-child,
+    .auth-outer-col [data-testid="column"]:last-child {
+        display: none !important;
+    }
+    .auth-outer-col [data-testid="column"]:nth-child(2) {
+        min-width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    /* User control — compact text on mobile */
+    .uc-username { font-size: 0.78rem !important; }
+    .uc-handle   { font-size: 0.68rem !important; }
+    .uc-header   { font-size: 0.58rem !important; }
+    .role-badge  { font-size: 0.55rem !important; padding: 1px 5px !important; }
+    .uc-table-header { display: none !important; }
+
+    /* Sidebar */
+    .sidebar-app-name {
+        font-size: 1.1rem !important;
+    }
+
+    /* Dataframe */
+    [data-testid="stDataFrame"] {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* ── Small mobile (≤ 480px) ─────────────────────── */
+@media (max-width: 480px) {
+    .block-container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    .page-hero {
+        padding: 1rem !important;
+        border-radius: 10px !important;
+    }
+    .main-header {
+        font-size: 1.4rem !important;
+    }
+    .main-subtitle {
+        font-size: 0.78rem !important;
+    }
+    .status-val {
+        font-size: 1.25rem !important;
+    }
+    .status-icon {
+        font-size: 0.65rem !important;
+    }
+    [data-testid="stFileUploader"] section {
+        padding: 1.25rem 1rem !important;
+    }
+    .pipeline-strip {
+        padding: 6px 10px !important;
+    }
+    .pipeline-chip {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+    }
+    [data-testid="stDownloadButton"] button {
+        width: 100% !important;
+    }
+
+    /* Auth page — full-width form on tiny screens */
+    [data-testid="stHorizontalBlock"]:has(.auth-form-col) > [data-testid="column"]:first-child,
+    [data-testid="stHorizontalBlock"]:has(.auth-form-col) > [data-testid="column"]:last-child {
+        display: none !important;
+    }
+
+    /* User control — tighten further on small screens */
+    .uc-username { font-size: 0.72rem !important; }
+    .uc-handle   { display: none !important; }
+    .role-badge  { font-size: 0.52rem !important; padding: 1px 4px !important; }
+}
 </style>
 """

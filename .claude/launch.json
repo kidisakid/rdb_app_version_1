@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "RDB App (Streamlit)",
+      "runtimeExecutable": "streamlit",
+      "runtimeArgs": ["run", "app.py"],
+      "port": 8501
+    },
+    {
+      "name": "RDB App (Streamlit — no CORS/XSRF)",
+      "runtimeExecutable": "streamlit",
+      "runtimeArgs": [
+        "run", "app.py",
+        "--server.enableCORS", "false",
+        "--server.enableXsrfProtection", "false"
+      ],
+      "port": 8501
+    }
+  ]
+}
