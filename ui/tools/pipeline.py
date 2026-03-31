@@ -19,7 +19,7 @@ from src.cleaning.filter_values import filter_by_value
 from src.transformation.add_dates_metadata import add_dates_metadata
 from src.transformation.translate_columns import translate_columns
 from src.clustering.topic_clustering import topic_cluster
-from helpers import (
+from ui.helpers import (
     get_group_color,
     load_uploaded_file, render_pipeline_strip, render_download,
 )

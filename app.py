@@ -23,10 +23,10 @@ st.set_page_config(
 )
 
 # Styles
-from styles import STYLES
+from ui.styles import STYLES
 st.markdown(STYLES, unsafe_allow_html=True)
 
-from tools import tool_data_pipeline, tool_merge_csv, tool_user_control
+from ui.tools import tool_data_pipeline, tool_merge_csv, tool_user_control
 from auth import is_authenticated, is_admin, render_auth_page, render_sidebar_header
 
 

@@ -61,7 +61,7 @@ def _make_user(username="alice", role="user", password_hash=b"$2b$hash"):
 @pytest.fixture
 def col():
     """Mock MongoDB users collection injected via patch."""
-    with patch("auth._get_users_collection") as mock_get:
+    with patch("auth.core._get_users_collection") as mock_get:
         c = MagicMock()
         mock_get.return_value = c
         yield c
@@ -116,7 +116,7 @@ class TestPasswordValidation:
 class TestAuthentication:
 
     def test_valid_login(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             col.find_one.return_value = _make_user("alice", "user")
             ok, name, role = authenticate_user("alice", "password12")
         assert ok is True
@@ -124,7 +124,7 @@ class TestAuthentication:
         assert role == "user"
 
     def test_wrong_password(self, col):
-        with patch("auth._verify_password", return_value=False):
+        with patch("auth.core._verify_password", return_value=False):
             col.find_one.return_value = _make_user("alice")
             ok, msg, role = authenticate_user("alice", "wrongpass")
         assert ok is False
@@ -146,14 +146,14 @@ class TestAuthentication:
         assert ok is False
 
     def test_whitespace_username_stripped(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             col.find_one.return_value = _make_user("alice", "user")
             ok, _, _ = authenticate_user("  alice  ", "password12")
         # Should query "alice" not "  alice  "
         col.find_one.assert_called_with({"username": "alice"})
 
     def test_username_case_insensitive(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             col.find_one.return_value = _make_user("alice", "user")
             ok, _, _ = authenticate_user("ALICE", "password12")
         col.find_one.assert_called_with({"username": "alice"})
@@ -170,19 +170,19 @@ class TestAuthentication:
         assert ok is False
 
     def test_admin_role_returned(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             col.find_one.return_value = _make_user("boss", "admin")
             ok, _, role = authenticate_user("boss", "password12")
         assert role == "admin"
 
     def test_super_admin_role_returned(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             col.find_one.return_value = _make_user("root", "super_admin")
             ok, _, role = authenticate_user("root", "password12")
         assert role == "super_admin"
 
     def test_legacy_user_defaults_to_user_role(self, col):
-        with patch("auth._verify_password", return_value=True):
+        with patch("auth.core._verify_password", return_value=True):
             user = _make_user("legacy")
             del user["role"]   # no role field → legacy account
             col.find_one.return_value = user
