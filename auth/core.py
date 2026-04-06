@@ -3,7 +3,9 @@ Authentication module — MongoDB-backed login with role-based access control.
 Roles: "admin" (all tools + user management) | "user" (pipeline + merge only)
 """
 
+import base64
 import re
+from pathlib import Path
 
 import bcrypt
 import streamlit as st
@@ -201,9 +203,13 @@ def render_auth_page():
     _, col, _ = st.columns([1, 1.5, 1])
 
     with col:
-        st.markdown("""
+        logo_path = Path("assets/RDB.png")
+        logo_b64 = base64.b64encode(logo_path.read_bytes()).decode()
+        st.markdown(f"""
         <div class="auth-card">
-            <div class="auth-logo">RDB</div>
+            <div style="display:flex;justify-content:center;margin-bottom:0.5rem;">
+                <img src="data:image/png;base64,{logo_b64}" alt="RDB Logo" style="width:100px;">
+            </div>
             <div class="auth-eyebrow">RDB App</div>
             <div class="auth-title">Welcome back</div>
             <div class="auth-subtitle">Enter your credentials to access your account</div>
