@@ -43,7 +43,11 @@ def tool_user_control():
         unsafe_allow_html=True,
     )
 
-    users = get_all_users()
+    try:
+        users = get_all_users()
+    except Exception as e:
+        st.error(f"Failed to load users: {e}")
+        users = []
 
     if not users:
         st.info("No users found or could not connect to database.")
@@ -159,9 +163,12 @@ def tool_user_control():
             if not new_username or not new_password:
                 st.error("Username and password are required.")
             else:
-                ok, msg = register_user(new_username, new_password, role=new_role)
-                if ok:
-                    st.success(msg)
-                    st.rerun()
-                else:
-                    st.error(msg)
+                try:
+                    ok, msg = register_user(new_username, new_password, role=new_role)
+                    if ok:
+                        st.success(msg)
+                        st.rerun()
+                    else:
+                        st.error(msg)
+                except Exception as e:
+                    st.error(f"Failed to register user: {e}")

@@ -104,23 +104,29 @@ class TopicClusterer:
         if not non_empty_texts:
             raise ValueError("All texts are empty after preprocessing")
 
-        self.vectorizer = TfidfVectorizer(
-            max_df=self.max_df,
-            min_df=self.min_df,
-            stop_words='english',
-            lowercase=True,
-            max_features=500,
-        )
+        try:
+            self.vectorizer = TfidfVectorizer(
+                max_df=self.max_df,
+                min_df=self.min_df,
+                stop_words='english',
+                lowercase=True,
+                max_features=500,
+            )
 
-        self.tfidf_matrix = self.vectorizer.fit_transform(processed_texts)
-        self.feature_names = self.vectorizer.get_feature_names_out()
+            self.tfidf_matrix = self.vectorizer.fit_transform(processed_texts)
+            self.feature_names = self.vectorizer.get_feature_names_out()
+        except Exception as e:
+            raise RuntimeError(f"TF-IDF vectorization failed: {e}") from e
 
-        self.kmeans = KMeans(
-            n_clusters=min(self.n_clusters, len(non_empty_texts)),
-            random_state=self.random_state,
-            n_init=self.n_init,
-        )
-        self.kmeans.fit(self.tfidf_matrix)
+        try:
+            self.kmeans = KMeans(
+                n_clusters=min(self.n_clusters, len(non_empty_texts)),
+                random_state=self.random_state,
+                n_init=self.n_init,
+            )
+            self.kmeans.fit(self.tfidf_matrix)
+        except Exception as e:
+            raise RuntimeError(f"KMeans clustering failed: {e}") from e
 
         return self
 
@@ -128,9 +134,14 @@ class TopicClusterer:
         if self.vectorizer is None or self.kmeans is None:
             raise ValueError("Model must be fitted before prediction. Call fit() first.")
 
-        processed_texts = self._preprocess_text(texts)
-        tfidf_new = self.vectorizer.transform(processed_texts)
-        return self.kmeans.predict(tfidf_new)
+        try:
+            processed_texts = self._preprocess_text(texts)
+            tfidf_new = self.vectorizer.transform(processed_texts)
+            return self.kmeans.predict(tfidf_new)
+        except ValueError:
+            raise
+        except Exception as e:
+            raise RuntimeError(f"Prediction failed: {e}") from e
 
     def fit_predict(self, texts: List[str], show_progress: bool = True) -> np.ndarray:
         self.fit(texts, show_progress=show_progress)
@@ -167,18 +178,23 @@ class TopicClusterer:
         if self.tfidf_matrix is None or self.kmeans is None:
             raise ValueError("Model must be fitted first. Call fit() first.")
 
-        if texts is not None:
-            processed_texts = self._preprocess_text(texts)
-            tfidf_vectors = self.vectorizer.transform(processed_texts)
-            clusters = self.kmeans.predict(tfidf_vectors)
-        else:
-            tfidf_vectors = self.tfidf_matrix
-            clusters = self.kmeans.labels_
+        try:
+            if texts is not None:
+                processed_texts = self._preprocess_text(texts)
+                tfidf_vectors = self.vectorizer.transform(processed_texts)
+                clusters = self.kmeans.predict(tfidf_vectors)
+            else:
+                tfidf_vectors = self.tfidf_matrix
+                clusters = self.kmeans.labels_
 
-        pca = PCA(n_components=2, random_state=self.random_state)
-        coordinates_2d = pca.fit_transform(tfidf_vectors.toarray())
+            pca = PCA(n_components=2, random_state=self.random_state)
+            coordinates_2d = pca.fit_transform(tfidf_vectors.toarray())
 
-        return coordinates_2d, clusters
+            return coordinates_2d, clusters
+        except ValueError:
+            raise
+        except Exception as e:
+            raise RuntimeError(f"PCA coordinate computation failed: {e}") from e
 
     def get_top_terms_matrix(self, n_terms: int = 10) -> pd.DataFrame:
         if self.kmeans is None or self.feature_names is None:
@@ -235,8 +251,11 @@ def topic_cluster(
     Returns:
         DataFrame with Cluster_Topic column and clusterer stored in df.attrs['clusterer'].
     """
-    path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
-    df = read_csv(path)
+    try:
+        path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
+        df = read_csv(path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read file for clustering: {e}") from e
 
     # Auto-detect text column if not specified
     if text_column is None:
@@ -253,14 +272,19 @@ def topic_cluster(
     if clean_text_option:
         texts = [clean_text(str(t)) for t in texts]
 
-    clusterer = TopicClusterer(
-        n_clusters=n_clusters,
-        max_df=max_df,
-        min_df=min_df,
-        n_init=n_init,
-    )
+    try:
+        clusterer = TopicClusterer(
+            n_clusters=n_clusters,
+            max_df=max_df,
+            min_df=min_df,
+            n_init=n_init,
+        )
 
-    clusters = clusterer.fit_predict(texts, show_progress=False)
+        clusters = clusterer.fit_predict(texts, show_progress=False)
+    except (ValueError, RuntimeError):
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Topic clustering failed: {e}") from e
 
     result_df = df.copy()
     result_df['Cluster_Topic'] = clusters

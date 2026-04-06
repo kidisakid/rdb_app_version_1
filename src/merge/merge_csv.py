@@ -70,22 +70,25 @@ def get_common_columns(uploaded_files):
         Column names common to every file, preserving the order they
         appear in the first file.
     """
-    all_columns = []  # list of (ordered_cols, col_set) per file
-    for uf in uploaded_files:
-        df = _read_uploaded_file(uf)
-        uf.seek(0)
-        if df is not None:
-            all_columns.append((list(df.columns), set(df.columns)))
+    try:
+        all_columns = []  # list of (ordered_cols, col_set) per file
+        for uf in uploaded_files:
+            df = _read_uploaded_file(uf)
+            uf.seek(0)
+            if df is not None:
+                all_columns.append((list(df.columns), set(df.columns)))
 
-    if not all_columns:
+        if not all_columns:
+            return []
+
+        common = all_columns[0][1]
+        for _, cs in all_columns[1:]:
+            common = common & cs
+
+        # Preserve the column order from the first file
+        return [c for c in all_columns[0][0] if c in common]
+    except Exception:
         return []
-
-    common = all_columns[0][1]
-    for _, cs in all_columns[1:]:
-        common = common & cs
-
-    # Preserve the column order from the first file
-    return [c for c in all_columns[0][0] if c in common]
 
 
 def merge_csv(file_path=None, uploaded_files=None, merge_column=None):
@@ -107,26 +110,29 @@ def merge_csv(file_path=None, uploaded_files=None, merge_column=None):
     pd.DataFrame
         Concatenated DataFrame sorted by *merge_column*.
     """
-    file_path = file_path or config.RAW_DATA_FILE
+    try:
+        file_path = file_path or config.RAW_DATA_FILE
 
-    if not uploaded_files:
-        df = read_csv(str(file_path))
-        return df
+        if not uploaded_files:
+            df = read_csv(str(file_path))
+            return df
 
-    frames = []
-    for uf in uploaded_files:
-        df = _read_uploaded_file(uf)
-        if df is not None:
-            if merge_column and merge_column in df.columns:
-                df = df.dropna(subset=[merge_column])
-            frames.append(df)
+        frames = []
+        for uf in uploaded_files:
+            df = _read_uploaded_file(uf)
+            if df is not None:
+                if merge_column and merge_column in df.columns:
+                    df = df.dropna(subset=[merge_column])
+                frames.append(df)
 
-    if not frames:
-        return pd.DataFrame()
+        if not frames:
+            return pd.DataFrame()
 
-    merged_df = pd.concat(frames, ignore_index=True, sort=False)
+        merged_df = pd.concat(frames, ignore_index=True, sort=False)
 
-    if merge_column and merge_column in merged_df.columns:
-        merged_df = merged_df.sort_values(by=merge_column, ignore_index=True)
+        if merge_column and merge_column in merged_df.columns:
+            merged_df = merged_df.sort_values(by=merge_column, ignore_index=True)
 
-    return merged_df
+        return merged_df
+    except Exception as e:
+        raise RuntimeError(f"Failed to merge files: {e}") from e

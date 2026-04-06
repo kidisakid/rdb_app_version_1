@@ -21,37 +21,42 @@ def remove_duplicates(
     Returns:
         DataFrame with duplicates removed
     """
-    path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
-    df = read_csv(path)
-    df_work = df.copy()
-    column_map = {col.lower(): col for col in df_work.columns}
+    try:
+        path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
+        df = read_csv(path)
+        df_work = df.copy()
+        column_map = {col.lower(): col for col in df_work.columns}
 
-    def match_columns(user_columns: List[str]) -> Tuple[List[str], List[str]]:
-        """Match user input columns to actual column names (case-insensitive)."""
-        matched_columns: List[str] = []
-        invalid_columns: List[str] = []
+        def match_columns(user_columns: List[str]) -> Tuple[List[str], List[str]]:
+            """Match user input columns to actual column names (case-insensitive)."""
+            matched_columns: List[str] = []
+            invalid_columns: List[str] = []
 
-        for user_col in user_columns:
-            user_col_lower = user_col.strip().lower()
-            if user_col_lower in column_map:
-                matched_columns.append(column_map[user_col_lower])
-            else:
-                invalid_columns.append(user_col)
+            for user_col in user_columns:
+                user_col_lower = user_col.strip().lower()
+                if user_col_lower in column_map:
+                    matched_columns.append(column_map[user_col_lower])
+                else:
+                    invalid_columns.append(user_col)
 
-        return matched_columns, invalid_columns
+            return matched_columns, invalid_columns
 
-    if columns is None:
-        df_clean = df_work.drop_duplicates()
-    else:
-        user_columns = [col.strip() if isinstance(col, str) else col for col in columns]
-        columns_to_check, invalid_columns = match_columns(user_columns)
-
-        if invalid_columns:
-            raise ValueError(f"Invalid columns: {invalid_columns}")
-
-        if not columns_to_check:
+        if columns is None:
             df_clean = df_work.drop_duplicates()
         else:
-            df_clean = df_work.drop_duplicates(subset=columns_to_check)
+            user_columns = [col.strip() if isinstance(col, str) else col for col in columns]
+            columns_to_check, invalid_columns = match_columns(user_columns)
 
-    return df_clean
+            if invalid_columns:
+                raise ValueError(f"Invalid columns: {invalid_columns}")
+
+            if not columns_to_check:
+                df_clean = df_work.drop_duplicates()
+            else:
+                df_clean = df_work.drop_duplicates(subset=columns_to_check)
+
+        return df_clean
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to remove duplicates: {e}") from e

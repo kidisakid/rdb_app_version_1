@@ -14,17 +14,22 @@ def standardize_country(column, file_path, convert_code) -> pd.DataFrame:
     Returns:
         DataFrame with the specified column converted to ISO3 codes.
     """
-    path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
-    df = read_csv(path)
-    df_standardized = df.copy()
+    try:
+        path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
+        df = read_csv(path)
+        df_standardized = df.copy()
 
-    if column not in df_standardized.columns:
-        raise ValueError(f"Column '{column}' not found in the dataset.")
+        if column not in df_standardized.columns:
+            raise ValueError(f"Column '{column}' not found in the dataset.")
 
-    cc = coco.CountryConverter()
-    col_idx = df_standardized.columns.get_loc(column) + 1
-    df_standardized.insert(col_idx, "Country_Code", cc.pandas_convert(
-        series=df_standardized[column], to=convert_code, not_found=None
-    ))
+        cc = coco.CountryConverter()
+        col_idx = df_standardized.columns.get_loc(column) + 1
+        df_standardized.insert(col_idx, "Country_Code", cc.pandas_convert(
+            series=df_standardized[column], to=convert_code, not_found=None
+        ))
 
-    return df_standardized
+        return df_standardized
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to standardize country column '{column}': {e}") from e

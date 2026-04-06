@@ -21,37 +21,45 @@ def get_group_bg(group: str) -> str:
 
 
 def detect_encoding(uploaded_file) -> str:
-    raw = uploaded_file.read(50_000)
-    uploaded_file.seek(0)
-    if raw[:2] in (b'\xff\xfe', b'\xfe\xff'):
-        return "utf-16"
-    for enc in config.CSV_ENCODINGS:
-        if enc == "utf-16":
-            continue
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return config.CSV_ENCODINGS[0]
+    try:
+        raw = uploaded_file.read(50_000)
+        uploaded_file.seek(0)
+        if raw[:2] in (b'\xff\xfe', b'\xfe\xff'):
+            return "utf-16"
+        for enc in config.CSV_ENCODINGS:
+            if enc == "utf-16":
+                continue
+            try:
+                raw.decode(enc)
+                return enc
+            except (UnicodeDecodeError, LookupError):
+                continue
+        return config.CSV_ENCODINGS[0]
+    except Exception:
+        return config.CSV_ENCODINGS[0]
 
 
 def load_uploaded_file(uploaded_file) -> tuple[pd.DataFrame, str]:
-    suffix = Path(uploaded_file.name).suffix.lower()
-    if suffix in (".xlsx", ".xls"):
-        return pd.read_excel(uploaded_file), "n/a"
-    if suffix == ".csv":
-        encoding = detect_encoding(uploaded_file)
-        if encoding == "utf-16":
-            text = uploaded_file.read().decode("utf-16")
-            uploaded_file.seek(0)
-            buf = io.BytesIO(text.encode("utf-8"))
-            return pd.read_csv(buf, encoding="utf-8", sep="\t", on_bad_lines="skip"), encoding
-        return (
-            pd.read_csv(uploaded_file, encoding=encoding, on_bad_lines="skip"),
-            encoding,
-        )
-    raise ValueError("Unsupported format. Use CSV or Excel (.xlsx, .xls).")
+    try:
+        suffix = Path(uploaded_file.name).suffix.lower()
+        if suffix in (".xlsx", ".xls"):
+            return pd.read_excel(uploaded_file), "n/a"
+        if suffix == ".csv":
+            encoding = detect_encoding(uploaded_file)
+            if encoding == "utf-16":
+                text = uploaded_file.read().decode("utf-16")
+                uploaded_file.seek(0)
+                buf = io.BytesIO(text.encode("utf-8"))
+                return pd.read_csv(buf, encoding="utf-8", sep="\t", on_bad_lines="skip"), encoding
+            return (
+                pd.read_csv(uploaded_file, encoding=encoding, on_bad_lines="skip"),
+                encoding,
+            )
+        raise ValueError("Unsupported format. Use CSV or Excel (.xlsx, .xls).")
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to load file '{uploaded_file.name}': {e}") from e
 
 
 def render_pipeline_strip(selected_steps: list):
@@ -91,20 +99,23 @@ def render_download(result_df: pd.DataFrame, default_name: str):
         st.session_state["output_base_name"] = default_name
     filename = st.text_input("Output filename: ", key="output_base_name")
 
-    if out_format == "CSV":
-        st.download_button(
-            label="Download CSV",
-            data=result_df.to_csv(index=False).encode("utf-8"),
-            file_name=filename + "_cleaned.csv",
-            mime="text/csv",
-        )
-    else:
-        buf = io.BytesIO()
-        result_df.to_excel(buf, index=False, engine="openpyxl")
-        buf.seek(0)
-        st.download_button(
-            label="Download Excel",
-            data=buf.getvalue(),
-            file_name=filename + "_cleaned.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+    try:
+        if out_format == "CSV":
+            st.download_button(
+                label="Download CSV",
+                data=result_df.to_csv(index=False).encode("utf-8"),
+                file_name=filename + "_cleaned.csv",
+                mime="text/csv",
+            )
+        else:
+            buf = io.BytesIO()
+            result_df.to_excel(buf, index=False, engine="openpyxl")
+            buf.seek(0)
+            st.download_button(
+                label="Download Excel",
+                data=buf.getvalue(),
+                file_name=filename + "_cleaned.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+    except Exception as e:
+        st.error(f"Failed to prepare download: {e}")

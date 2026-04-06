@@ -64,7 +64,12 @@ def write_csv(data: pd.DataFrame, file_path: str):
         data (pd.DataFrame): Data to be written.
         file_path (str): Path to the output CSV file.
     """
-    data.to_csv(file_path, index=False)
+    try:
+        data.to_csv(file_path, index=False)
+    except PermissionError:
+        raise PermissionError(f"Permission denied when writing to '{file_path}'.")
+    except Exception as e:
+        raise RuntimeError(f"Failed to write CSV to '{file_path}': {e}") from e
 
 
 def append_csv(data: pd.DataFrame, file_path: str):
@@ -75,7 +80,12 @@ def append_csv(data: pd.DataFrame, file_path: str):
         data (pd.DataFrame): Data to append.
         file_path (str): Path to the target CSV file.
     """
-    data.to_csv(file_path, mode='a', header=False, index=False)
+    try:
+        data.to_csv(file_path, mode='a', header=False, index=False)
+    except PermissionError:
+        raise PermissionError(f"Permission denied when appending to '{file_path}'.")
+    except Exception as e:
+        raise RuntimeError(f"Failed to append CSV to '{file_path}': {e}") from e
 
 
 def read_csv_to_dict(file_path: str) -> list[dict]:
@@ -88,4 +98,9 @@ def read_csv_to_dict(file_path: str) -> list[dict]:
     Returns:
         list[dict]: DataFrame records as list of dicts.
     """
-    return read_csv(file_path).to_dict(orient='records')
+    try:
+        return read_csv(file_path).to_dict(orient='records')
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to read '{file_path}' as dict: {e}") from e

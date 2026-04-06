@@ -36,8 +36,11 @@ def translate_columns(
     Raises:
         ValueError: If the dataset is empty or no columns are selected
     """
-    path = file_path if file_path is not None else str(config.RAW_DATA_FILE)
-    data_list: List[Dict] = read_csv_to_dict(path)
+    try:
+        path = file_path if file_path is not None else str(config.RAW_DATA_FILE)
+        data_list: List[Dict] = read_csv_to_dict(path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read file for translation: {e}") from e
 
     if not data_list:
         raise ValueError("The dataset is empty")
@@ -278,6 +281,9 @@ def translate_columns(
 
         df_translated[translated_col_name] = translated_values
 
-    if progress_callback and total_work:
-        progress_callback(total_work, total_work, f"Translating: {total_work}/{total_work} rows - done")
+    try:
+        if progress_callback and total_work:
+            progress_callback(total_work, total_work, f"Translating: {total_work}/{total_work} rows - done")
+    except Exception:
+        pass
     return df_translated

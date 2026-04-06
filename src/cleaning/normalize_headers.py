@@ -17,17 +17,22 @@ def normalize_headers(file_path: Optional[str | Path] = None) -> pd.DataFrame:
     Returns:
         DataFrame with normalized headers
     """
-    path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
-    df = read_csv(path)
+    try:
+        path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
+        df = read_csv(path)
 
-    df_normalized = df.copy()
-    new_columns: Dict[str, str] = {}
+        df_normalized = df.copy()
+        new_columns: Dict[str, str] = {}
 
-    for col in df_normalized.columns:
-        trimmed_col = ' '.join(str(col).split())
-        normalized_col = trimmed_col.title()
-        new_columns[col] = normalized_col
+        for col in df_normalized.columns:
+            trimmed_col = ' '.join(str(col).split())
+            normalized_col = trimmed_col.title()
+            new_columns[col] = normalized_col
 
-    df_normalized.rename(columns=new_columns, inplace=True)
+        df_normalized.rename(columns=new_columns, inplace=True)
 
-    return df_normalized
+        return df_normalized
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to normalize headers: {e}") from e

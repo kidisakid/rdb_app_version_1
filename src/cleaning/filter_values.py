@@ -30,20 +30,25 @@ def filter_by_value(
     Raises:
         ValueError: If column is not found in the dataset.
     """
-    path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
-    df = read_csv(path)
+    try:
+        path = str(file_path) if file_path is not None else str(config.RAW_DATA_FILE)
+        df = read_csv(path)
 
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found. Available: {list(df.columns)}")
+        if column not in df.columns:
+            raise ValueError(f"Column '{column}' not found. Available: {list(df.columns)}")
 
-    if value_range is not None:
-        range_min, range_max = value_range
-        numeric_col = pd.to_numeric(df[column], errors='coerce')
-        filtered = df[(numeric_col >= range_min) & (numeric_col <= range_max)]
+        if value_range is not None:
+            range_min, range_max = value_range
+            numeric_col = pd.to_numeric(df[column], errors='coerce')
+            filtered = df[(numeric_col >= range_min) & (numeric_col <= range_max)]
+            return filtered
+
+        if not values:
+            return df
+
+        filtered = df[df[column].astype(str).isin([str(v) for v in values])]
         return filtered
-
-    if not values:
-        return df
-
-    filtered = df[df[column].astype(str).isin([str(v) for v in values])]
-    return filtered
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to filter by column '{column}': {e}") from e
