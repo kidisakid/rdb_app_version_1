@@ -12,8 +12,8 @@ from auth import register_user, delete_user, update_user_role, get_all_users, is
 
 _BADGE = {
     "super_admin": ("role-super", "Super Admin"),
-    "admin":       ("role-admin", "Admin"),
-    "user":        ("role-user",  "User"),
+    "admin": ("role-admin", "Admin"),
+    "user": ("role-user",  "User"),
 }
 
 

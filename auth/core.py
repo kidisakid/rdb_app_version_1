@@ -278,6 +278,7 @@ def render_sidebar_header():
         role_badge = '<span class="role-badge role-user">User</span>'
 
     with st.sidebar.container(key="sidebar_header"):
+        st.logo("assets/RDB.png")
         st.markdown(
             f'<p class="sidebar-app-name">RDB App</p>'
             f'<div class="sidebar-user-row">'
