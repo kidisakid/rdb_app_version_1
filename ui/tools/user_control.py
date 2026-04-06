@@ -125,9 +125,24 @@ def tool_user_control():
                             help=f"Delete {display}",
                             use_container_width=True,
                         ):
+                            st.session_state["confirm_delete_user"] = uname
+
+            if st.session_state.get("confirm_delete_user") == uname:
+                st.warning(f"Are you sure you want to delete **{display}** (@{uname})? This cannot be undone.")
+                c_yes, c_no = st.columns(2)
+                with c_yes:
+                    if st.button("Confirm", key=f"confirm_yes_{uname}", type="primary", use_container_width=True):
+                        try:
                             ok, msg = delete_user(uname)
                             st.toast(msg, icon="✅" if ok else "❌")
-                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed to delete user: {e}")
+                        st.session_state.pop("confirm_delete_user", None)
+                        st.rerun()
+                with c_no:
+                    if st.button("Cancel", key=f"confirm_no_{uname}", use_container_width=True):
+                        st.session_state.pop("confirm_delete_user", None)
+                        st.rerun()
 
             st.markdown('<div class="uc-divider"></div>', unsafe_allow_html=True)
 
