@@ -63,47 +63,67 @@ def tool_user_control():
             badge_cls, badge_label = _BADGE.get(role, ("role-user", role.capitalize()))
             you = "&thinsp;<span class='uc-you'>you</span>" if is_self else ""
 
-            st.markdown(
-                f'<div class="uc-row-info">'
-                f'<span class="uc-username">{display}{you}</span>'
-                f'<span class="uc-handle"> @{uname}</span>'
-                f'&ensp;<span class="role-badge {badge_cls}">{badge_label}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
+            # Determine how many action buttons this row needs
+            n_buttons = 0
             if can_act:
-                action_container = st.container(key=f"uc_actions_{uname}")
-                with action_container:
+                n_buttons = 2 if role in ("user", "admin") else 1  # role btn + delete
+
+            if n_buttons:
+                col_info, col_actions = st.columns([3, 1], vertical_alignment="center")
+            else:
+                col_info, col_actions = st.columns([1, 0.001], vertical_alignment="center")
+
+            with col_info:
+                st.markdown(
+                    f'<div class="uc-row-info">'
+                    f'<span class="uc-username">{display}{you}</span>'
+                    f'<span class="uc-handle"> @{uname}</span>'
+                    f'&ensp;<span class="role-badge {badge_cls}">{badge_label}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+            with col_actions:
+                if can_act:
+                    btn_cols = st.columns(n_buttons)
+                    col_idx = 0
                     if role == "user":
-                        if st.button(
-                            "",
-                            key=f"promote_{uname}",
-                            icon=":material/arrow_upward:",
-                            help=f"Promote {display} to Admin",
-                        ):
-                            ok, msg = update_user_role(uname, "admin")
-                            st.toast(msg, icon="✅" if ok else "❌")
-                            st.rerun()
+                        with btn_cols[col_idx]:
+                            if st.button(
+                                "",
+                                key=f"promote_{uname}",
+                                icon=":material/arrow_upward:",
+                                help=f"Promote {display} to Admin",
+                                use_container_width=True,
+                            ):
+                                ok, msg = update_user_role(uname, "admin")
+                                st.toast(msg, icon="✅" if ok else "❌")
+                                st.rerun()
+                        col_idx += 1
                     elif role == "admin":
+                        with btn_cols[col_idx]:
+                            if st.button(
+                                "",
+                                key=f"demote_{uname}",
+                                icon=":material/arrow_downward:",
+                                help=f"Demote {display} to User",
+                                use_container_width=True,
+                            ):
+                                ok, msg = update_user_role(uname, "user")
+                                st.toast(msg, icon="✅" if ok else "❌")
+                                st.rerun()
+                        col_idx += 1
+                    with btn_cols[col_idx]:
                         if st.button(
                             "",
-                            key=f"demote_{uname}",
-                            icon=":material/arrow_downward:",
-                            help=f"Demote {display} to User",
+                            key=f"delete_{uname}",
+                            icon=":material/delete:",
+                            help=f"Delete {display}",
+                            use_container_width=True,
                         ):
-                            ok, msg = update_user_role(uname, "user")
+                            ok, msg = delete_user(uname)
                             st.toast(msg, icon="✅" if ok else "❌")
                             st.rerun()
-                    if st.button(
-                        "",
-                        key=f"delete_{uname}",
-                        icon=":material/delete:",
-                        help=f"Delete {display}",
-                    ):
-                        ok, msg = delete_user(uname)
-                        st.toast(msg, icon="✅" if ok else "❌")
-                        st.rerun()
 
             st.markdown('<div class="uc-divider"></div>', unsafe_allow_html=True)
 

@@ -590,18 +590,18 @@ section[data-testid="stSidebar"] .stNumberInput label {
     line-height: 1.4;
 }
 
-/* User list action buttons — inline row */
-[class*="st-key-uc_actions_"] [data-testid="stVerticalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 0.4rem !important;
-    align-items: center !important;
+/* User list action buttons — compact in column layout */
+[class*="st-key-promote_"] button,
+[class*="st-key-demote_"] button,
+[class*="st-key-delete_"] button {
+    padding: 0.3rem 0.5rem !important;
+    min-height: 2rem !important;
+    font-size: 0.8rem !important;
 }
-[class*="st-key-uc_actions_"] [data-testid="stVerticalBlock"] > div {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
+[class*="st-key-promote_"] button [data-testid="stIconMaterial"],
+[class*="st-key-demote_"] button [data-testid="stIconMaterial"],
+[class*="st-key-delete_"] button [data-testid="stIconMaterial"] {
+    font-size: 1.1rem !important;
 }
 
 /* Delete button — red icon */
@@ -930,6 +930,14 @@ header[data-testid="stHeader"] { background: transparent !important; box-shadow:
     .role-badge  { font-size: 0.55rem !important; padding: 1px 5px !important; }
     .uc-table-header { display: none !important; }
 
+    /* Action buttons — smaller on tablet */
+    [class*="st-key-promote_"] button,
+    [class*="st-key-demote_"] button,
+    [class*="st-key-delete_"] button {
+        padding: 0.25rem 0.4rem !important;
+        min-height: 1.8rem !important;
+    }
+
     /* Sidebar */
     .sidebar-app-name {
         font-size: 1.1rem !important;
@@ -987,6 +995,19 @@ header[data-testid="stHeader"] { background: transparent !important; box-shadow:
     .uc-username { font-size: 0.72rem !important; }
     .uc-handle   { display: none !important; }
     .role-badge  { font-size: 0.52rem !important; padding: 1px 4px !important; }
+
+    /* Action buttons — minimal on small mobile */
+    [class*="st-key-promote_"] button,
+    [class*="st-key-demote_"] button,
+    [class*="st-key-delete_"] button {
+        padding: 0.2rem 0.3rem !important;
+        min-height: 1.6rem !important;
+    }
+    [class*="st-key-promote_"] button [data-testid="stIconMaterial"],
+    [class*="st-key-demote_"] button [data-testid="stIconMaterial"],
+    [class*="st-key-delete_"] button [data-testid="stIconMaterial"] {
+        font-size: 0.95rem !important;
+    }
 }
 
 /* ── Pipeline sidebar — options spacing ─────────── */
