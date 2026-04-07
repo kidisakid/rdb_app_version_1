@@ -26,19 +26,35 @@ st.set_page_config(
 from ui.styles import STYLES
 st.markdown(STYLES, unsafe_allow_html=True)
 
-from ui.tools import tool_data_pipeline, tool_merge_csv, tool_user_control
-from auth import is_authenticated, is_admin, render_auth_page, render_sidebar_header
+from ui.tools import (
+    tool_data_pipeline,
+    tool_merge_csv,
+    tool_user_control,
+    tool_security_logs,
+)
+from auth import (
+    is_authenticated,
+    is_admin,
+    render_auth_page,
+    render_change_password_screen,
+    render_sidebar_header,
+)
 
 
 # ── Tool definitions ─────────────────────────────────────────────────
 
 USER_TOOLS = [
-    {"id": "pipeline", "label": "Data Pipeline", "icon": ":material/tune:"},
-    {"id": "merge",    "label": "Merge Data",     "icon": ":material/merge:"},
+    {"id": "pipeline", "label": "Data Pipeline",   "icon": ":material/tune:"},
+    {"id": "merge",    "label": "Merge Data",      "icon": ":material/merge:"},
+    {"id": "account",  "label": "Change Password", "icon": ":material/key:"},
 ]
 
-ADMIN_TOOLS = USER_TOOLS + [
-    {"id": "users",    "label": "User Control",   "icon": ":material/manage_accounts:"},
+ADMIN_TOOLS = [
+    {"id": "pipeline", "label": "Data Pipeline",   "icon": ":material/tune:"},
+    {"id": "merge",    "label": "Merge Data",      "icon": ":material/merge:"},
+    {"id": "users",    "label": "User Control",    "icon": ":material/manage_accounts:"},
+    {"id": "logs",     "label": "Security Logs",   "icon": ":material/shield_person:"},
+    {"id": "account",  "label": "Change Password", "icon": ":material/key:"},
 ]
 
 
@@ -81,6 +97,19 @@ def main():
         render_auth_page()
         return
 
+    # Forced password change after an admin reset — the user is authenticated
+    # but cannot reach any other tool until they pick a new password. We still
+    # render the sidebar header so they can log out, but we skip the tool
+    # selector entirely.
+    if st.session_state.get("force_change_password", False):
+        render_sidebar_header()
+        st.sidebar.warning(
+            "You must change your password before continuing.",
+            icon=":material/lock:",
+        )
+        render_change_password_screen()
+        return
+
     active = _render_tool_selector()
 
     if active == "pipeline":
@@ -89,6 +118,10 @@ def main():
         tool_merge_csv()
     elif active == "users" and is_admin():
         tool_user_control()
+    elif active == "logs" and is_admin():
+        tool_security_logs()
+    elif active == "account":
+        render_change_password_screen()
     else:
         st.error("You do not have permission to access this page.")
 

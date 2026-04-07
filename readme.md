@@ -75,6 +75,46 @@ Edit `config.py` to change:
 - `RAW_DATA_FILE` (default input for script/CLI usage)
 - `CSV_ENCODINGS`, `CSV_DELIMITERS` used when reading CSV
 
+## Authentication & password recovery
+
+The RDB App uses MongoDB-backed authentication with bcrypt hashing and role-based access control (`user`, `admin`, `super_admin`). Key security properties:
+
+- **Self-service password change requires the current password** and is only reachable from inside an authenticated session (Sidebar → Change Password). The public login page no longer exposes a Change Password tab.
+- **Lockout:** after 5 consecutive failures, both login and change-password lock the account for 15 minutes.
+- **Audit log:** every login, change, lockout, and admin reset writes a record to the `security_events` collection.
+- **Minimum password policy:** 8 characters, not equal to the username.
+
+### Forgot password (recovery flow)
+
+1. The user contacts an admin out-of-band (chat / phone / in-person).
+2. The admin opens **User Control**, clicks the key icon on the user's row, and enters a one-time temporary password that meets the policy.
+3. The admin delivers the temporary password to the user out-of-band (never email it).
+4. The user signs in with the temporary password. They are routed directly to the Change Password screen and cannot access any other tool until they pick a new password.
+5. The new password clears the `must_change_password` flag and forces a fresh sign-in.
+
+### Super-admin self-lockout
+
+If a super_admin forgets their own password and no other super_admin is available to reset it, the in-app recovery path cannot help — by design, no in-app backdoor exists.
+
+To recover, operators should:
+
+- Keep at least **two super_admin accounts** so either can reset the other, OR
+- Recover via direct MongoDB access (ops-level) by generating a new bcrypt hash in a one-off Python script and updating the target user document. Example:
+
+  ```python
+  import bcrypt
+  from pymongo import MongoClient
+  client = MongoClient("<mongo-uri>")
+  users = client["<db_name>"]["users"]
+  new_hash = bcrypt.hashpw(b"TemporaryPassword123", bcrypt.gensalt())
+  users.update_one(
+      {"username": "root"},
+      {"$set": {"password": new_hash, "must_change_password": True}},
+  )
+  ```
+
+  This script runs outside the app, against the DB directly, and sets the `must_change_password` flag so the super_admin is forced to pick a new password on next sign-in.
+
 ## License
 
 Rythmos DB
