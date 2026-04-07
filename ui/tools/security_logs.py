@@ -67,7 +67,7 @@ def tool_security_logs():
         unsafe_allow_html=True,
     )
 
-    col_event, col_user, col_fail, col_limit = st.columns([2, 2, 1, 1])
+    col_event, col_user, col_fail, col_limit = st.columns([2, 2, 1, 1], vertical_alignment="bottom")
     with col_event:
         event_choice = st.selectbox("Event type", _EVENT_OPTIONS, index=0)
     with col_user:

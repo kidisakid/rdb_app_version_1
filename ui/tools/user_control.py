@@ -98,7 +98,7 @@ def tool_user_control():
 
             with col_actions:
                 if can_act:
-                    btn_cols = st.columns(n_buttons)
+                    btn_cols = st.columns(n_buttons, vertical_alignment="center")
                     col_idx = 0
                     if role == "user":
                         with btn_cols[col_idx]:
